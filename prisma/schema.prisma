@@ -12,3 +12,87 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// ユーザー
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String
+
+  userPositions UserPosition[]
+  shoppingMemeber ShoppingMember[]
+}
+
+// ウォレット
+model Wallet {
+  id Int @id @default(autoincrement())
+  name String
+  budget Int
+
+  parts Part[]
+}
+
+// パート
+model Part {
+  id Int @id @default(autoincrement())
+  name String
+  budget Int
+  parentId Int
+
+  parent Wallet @relation(fields: [parentId], references: [id])
+
+  userPositions UserPosition[]
+  shoppings Shopping[]
+}
+
+// ユーザーの所属
+model UserPosition {
+  id Int @id @default(autoincrement())
+  userId Int
+  partId Int
+
+  user User @relation(fields: [userId], references: [id])
+  part Part @relation(fields: [partId], references: [id])
+}
+
+// 買い出し記録
+model Shopping {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  partId Int
+
+  part Part @relation(fields: [partId], references: [id]) 
+
+  shoppingMembers ShoppingMember[]
+  shoppingItems ShoppingItem[]
+}
+
+// 買い出しのメンバー
+model ShoppingMember {
+  id Int @id @default(autoincrement())
+  shoppingId Int
+  userId Int
+
+  shopping Shopping @relation(fields: [shoppingId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+// 買い出し内容
+model ShoppingItem {
+  id Int @id @default(autoincrement())
+  shoppingId Int
+  productId Int
+  amount Int
+
+  shopping Shopping @relation(fields: [shoppingId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// 商品
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  price Int
+
+  shoppingItems ShoppingItem[]
+}

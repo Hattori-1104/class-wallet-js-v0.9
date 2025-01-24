@@ -22,13 +22,21 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "all": true,
+      "style": {
+        "useImportType": "off",
+        "noDefaultExport": "off",
+        "useNamingConvention": "off",
+        "noParameterProperties": "off",
+        "useBlockStatements": "off"
+      }
     }
   },
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
-      "semicolons": "asNeeded"
+      "semicolons": "asNeeded",
+      "lineWidth": 160
     }
   }
 }
