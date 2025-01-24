@@ -1,7 +1,8 @@
 import { LoaderFunctionArgs } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { ScrollArea } from "~/components/ui/scroll-area"
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
 import { db } from "~/service.server/repository"
-
 import { getSession } from "~/service.server/session"
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -29,10 +30,33 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function PartHistoryPage() {
   const { currentSession } = useLoaderData<typeof loader>()
+  const dateFormatter = (date: Date) => `${date.getMonth() + 1}/${date.getDate()}`
   return (
-    <div>
-      <div>{currentSession.part.name}</div>
-      <div>{currentSession.part.shoppings.map((shopping) => shopping.shoppingItems.map((shoppingItem) => shoppingItem.product.name))}</div>
+    <div className="flex flex-col gap-2 p-2">
+      <ScrollArea className="w-full rounded-md border p-2">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>日付</TableHead>
+              <TableHead>商品</TableHead>
+              <TableHead className="text-right">数量</TableHead>
+              <TableHead className="text-right">金額</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {currentSession.part.shoppings.map((shopping) =>
+              shopping.shoppingItems.map((shoppingItem) => (
+                <TableRow key={shoppingItem.id}>
+                  <TableCell>{dateFormatter(shopping.createdAt)}</TableCell>
+                  <TableCell>{shoppingItem.product.name}</TableCell>
+                  <TableCell className="text-right">{shoppingItem.amount}</TableCell>
+                  <TableCell className="text-right">{shoppingItem.product.price * shoppingItem.amount}</TableCell>
+                </TableRow>
+              )),
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   )
 }

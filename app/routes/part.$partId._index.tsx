@@ -20,7 +20,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     where: { userId, partId },
     select: { part: { select: { id: true, name: true } }, user: { select: { id: true, name: true } } },
   })
-  // 冗長
   if (currentSession === null) throw new Error("データベースにパートとユーザーの組み合わせが存在しない")
   return { currentSession }
 }
@@ -30,9 +29,6 @@ export default function PartPage() {
   return (
     <div>
       <div>{currentSession.part.name}</div>
-      <Button>
-        <Link to={`/part/${currentSession.part.id}/history`}>履歴</Link>
-      </Button>
     </div>
   )
 }

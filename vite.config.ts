@@ -23,4 +23,7 @@ export default defineConfig({
     tsconfigPaths(),
     remixPWA(),
   ],
+  server: {
+    host: "0.0.0.0",
+  },
 })

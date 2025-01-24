@@ -29,6 +29,9 @@
         "useNamingConvention": "off",
         "noParameterProperties": "off",
         "useBlockStatements": "off"
+      },
+      "suspicious": {
+        "noReactSpecificProps": "off"
       }
     }
   },
