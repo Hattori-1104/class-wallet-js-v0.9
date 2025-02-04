@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,86 +7,133 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ユーザー
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  name String
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
 
-  userPositions UserPosition[]
-  shoppingMemeber ShoppingMember[]
+  // 所属関係
+  userParts   UserPart[]
+  userWallets UserWallet[]
+
+  // 購入関係
+  requestedPurchases         PurchaseRequest[] @relation("RequestedPurchases")
+  accountantApprovedPurchases PurchaseRequest[] @relation("AccountantApprovedPurchases")
 }
 
-// ウォレット
-model Wallet {
-  id Int @id @default(autoincrement())
-  name String
-  budget Int
-
-  parts Part[]
-}
-
-// パート
 model Part {
-  id Int @id @default(autoincrement())
-  name String
-  budget Int
-  parentId Int
+  id        String   @id @default(uuid())
+  name      String
 
-  parent Wallet @relation(fields: [parentId], references: [id])
+  // 所属関係
+  users    UserPart[]
+  walletId String
+  wallet   Wallet   @relation(fields: [walletId], references: [id])
 
-  userPositions UserPosition[]
-  shoppings Shopping[]
+  // 購入関係
+  purchaseRequests PurchaseRequest[]
+
+  @@index([walletId])
 }
 
-// ユーザーの所属
-model UserPosition {
-  id Int @id @default(autoincrement())
-  userId Int
-  partId Int
+model Wallet {
+  id        String   @id @default(uuid())
+  name      String
 
-  user User @relation(fields: [userId], references: [id])
-  part Part @relation(fields: [partId], references: [id])
+  // 所属関係
+  parts    Part[]
+  users    UserWallet[]
+  teachers TeacherWallet[]
 }
 
-// 買い出し記録
-model Shopping {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  partId Int
-
-  part Part @relation(fields: [partId], references: [id]) 
-
-  shoppingMembers ShoppingMember[]
-  shoppingItems ShoppingItem[]
+// 役職マスターテーブル
+model Role {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  userParts   UserPart[]
 }
 
-// 買い出しのメンバー
-model ShoppingMember {
-  id Int @id @default(autoincrement())
-  shoppingId Int
-  userId Int
+// 中間テーブル：ユーザーとパートの関連
+model UserPart {
+  id        String   @id @default(uuid())
+  userId    String
+  partId    String
+  roleId    String
 
-  shopping Shopping @relation(fields: [shoppingId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  part      Part     @relation(fields: [partId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, partId])
+  @@index([userId])
+  @@index([partId])
+  @@index([roleId])
 }
 
-// 買い出し内容
-model ShoppingItem {
-  id Int @id @default(autoincrement())
-  shoppingId Int
-  productId Int
-  amount Int
+// 中間テーブル：ユーザーとウォレットの関連
+model UserWallet {
+  id        String   @id @default(uuid())
+  userId    String
+  walletId  String
 
-  shopping Shopping @relation(fields: [shoppingId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+
+  @@unique([userId, walletId])
+  @@index([userId])
+  @@index([walletId])
 }
 
-// 商品
-model Product {
-  id Int @id @default(autoincrement())
-  name String
-  price Int
+// 教師モデル
+model Teacher {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
 
-  shoppingItems ShoppingItem[]
+  // ウォレットとの関連
+  wallets   TeacherWallet[]
+
+  // 購入承認との関連
+  approvedPurchases PurchaseRequest[]
+}
+
+// 中間テーブル：教師とウォレットの関連
+model TeacherWallet {
+  id        String   @id @default(uuid())
+  teacherId String
+  walletId  String
+
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  wallet    Wallet   @relation(fields: [walletId], references: [id])
+
+  @@unique([teacherId, walletId])
+  @@index([teacherId])
+  @@index([walletId])
+}
+
+model PurchaseRequest {
+  id                  String    @id @default(cuid())
+  itemName            String
+  amount              Int
+  description         String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  // Relations
+  part               Part      @relation(fields: [partId], references: [id])
+  partId             String
+  
+  requestedBy        User      @relation("RequestedPurchases", fields: [requestedById], references: [id])
+  requestedById      String
+  
+  approvedByAccountant User?    @relation("AccountantApprovedPurchases", fields: [accountantApprovalId], references: [id])
+  accountantApprovalId String?
+  
+  approvedByTeacher   Teacher?  @relation(fields: [teacherApprovalId], references: [id])
+  teacherApprovalId   String?
+
+  @@index([partId])
+  @@index([requestedById])
+  @@index([accountantApprovalId])
+  @@index([teacherApprovalId])
 }

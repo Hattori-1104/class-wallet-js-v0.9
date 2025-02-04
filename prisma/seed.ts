@@ -1,43 +1,181 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
 const prisma = new PrismaClient()
+
 async function main() {
-  // ユーザー
-  const userId_A = (await prisma.user.create({ data: { email: 'z20230423@west.ed.jp', name: '服部和紀' } })).id
-  const userId_B = (await prisma.user.create({ data: { email: 'crafter.alloy@gmail.com', name: 'Hattori' } })).id
-  const userId_C = (await prisma.user.create({ data: { email: 'hukubekazuki@gmail.com', name: 'はっとり' } })).id
-  // ウォレット
-  const walletId = (await prisma.wallet.create({ data: { name: '2-1', budget: 60_000 } })).id
-  // パート
-  const partId_A = (await prisma.part.create({ data: { name: '展示', parentId: walletId, budget: 20_000 } })).id
-  const partId_B = (await prisma.part.create({ data: { name: '行燈', parentId: walletId, budget: 30_000 } })).id
-  const partId_C = (await prisma.part.create({ data: { name: '垂れ幕', parentId: walletId, budget: 10_000 } })).id
-  // ユーザーの所属
-  await prisma.userPosition.create({ data: { partId: partId_A, userId: userId_A } })
-  await prisma.userPosition.create({ data: { partId: partId_A, userId: userId_B } })
-  await prisma.userPosition.create({ data: { partId: partId_B, userId: userId_B } })
-  await prisma.userPosition.create({ data: { partId: partId_C, userId: userId_C } })
-  // 商品
-  const productId_A = (await prisma.product.create({ data: { name: 'ガムテープ', price: 200 } })).id
-  const productId_B = (await prisma.product.create({ data: { name: 'カラーセロハン８枚組', price: 160 } })).id
-  const productId_C = (await prisma.product.create({ data: { name: '油性ペン', price: 100 } })).id
-  const productId_D = (await prisma.product.create({ data: { name: '極小ダイヤモンド', price: 10_000 } })).id
+  // 役職の作成
+  const roleId_accountant = (
+    await prisma.role.create({
+      data: { name: "会計" },
+    })
+  ).id
+  const roleId_subAccountant = (
+    await prisma.role.create({
+      data: { name: "副会計" },
+    })
+  ).id
 
-  // ショッピング
-  const shoppingId_A = (await prisma.shopping.create({ data: { partId: partId_A } })).id
-  await prisma.shoppingMember.create({ data: { shoppingId: shoppingId_A, userId: userId_A } })
-  await prisma.shoppingMember.create({ data: { shoppingId: shoppingId_A, userId: userId_B } })
-  await prisma.shoppingItem.create({ data: { amount: 3, productId: productId_A, shoppingId: shoppingId_A } })
-  await prisma.shoppingItem.create({ data: { amount: 2, productId: productId_B, shoppingId: shoppingId_A } })
-  await prisma.shoppingItem.create({ data: { amount: 6, productId: productId_C, shoppingId: shoppingId_A } })
+  // ユーザーの作成
+  const userId_A = (
+    await prisma.user.create({
+      data: { email: "tanaka.taro@example.com", name: "田中太郎" },
+    })
+  ).id
+  const userId_B = (
+    await prisma.user.create({
+      data: { email: "yamada.hanako@example.com", name: "山田花子" },
+    })
+  ).id
+  const userId_C = (
+    await prisma.user.create({
+      data: { email: "suzuki.ichiro@example.com", name: "鈴木一郎" },
+    })
+  ).id
 
-  const shoppingId_B = (await prisma.shopping.create({ data: { partId: partId_A } })).id
-  await prisma.shoppingMember.create({ data: { shoppingId: shoppingId_B, userId: userId_A } })
-  await prisma.shoppingItem.create({ data: { amount: 1, productId: productId_A, shoppingId: shoppingId_B } })
-  await prisma.shoppingItem.create({ data: { amount: 2, productId: productId_B, shoppingId: shoppingId_B } })
+  // ウォレットの作成
+  const walletId_2_1 = (
+    await prisma.wallet.create({
+      data: { name: "2-1" },
+    })
+  ).id
 
-  const shoppingId_C = (await prisma.shopping.create({ data: { partId: partId_A } })).id
-  await prisma.shoppingMember.create({ data: { shoppingId: shoppingId_C, userId: userId_A } })
-  await prisma.shoppingItem.create({ data: { amount: 1, productId: productId_D, shoppingId: shoppingId_C } })
+  const walletId_2_2 = (
+    await prisma.wallet.create({
+      data: { name: "2-2" },
+    })
+  ).id
+
+  // 教師の作成
+  const teacherId = (
+    await prisma.teacher.create({
+      data: {
+        email: "teacher@example.com",
+        name: "山田先生",
+        wallets: {
+          create: [{ wallet: { connect: { id: walletId_2_1 } } }, { wallet: { connect: { id: walletId_2_2 } } }],
+        },
+      },
+    })
+  ).id
+
+  // 2-1のパートの作成
+  const partId_A = (
+    await prisma.part.create({
+      data: {
+        name: "展示",
+        walletId: walletId_2_1,
+      },
+    })
+  ).id
+  const partId_B = (
+    await prisma.part.create({
+      data: {
+        name: "行燈",
+        walletId: walletId_2_1,
+      },
+    })
+  ).id
+  const partId_C = (
+    await prisma.part.create({
+      data: {
+        name: "垂れ幕",
+        walletId: walletId_2_1,
+      },
+    })
+  ).id
+
+  // 2-2のパートの作成
+  const partId_D = (
+    await prisma.part.create({
+      data: {
+        name: "展示",
+        walletId: walletId_2_2,
+      },
+    })
+  ).id
+  const partId_E = (
+    await prisma.part.create({
+      data: {
+        name: "装飾",
+        walletId: walletId_2_2,
+      },
+    })
+  ).id
+
+  // ユーザーとパートの関連付け（役職含む）
+  await prisma.userPart.create({
+    data: {
+      userId: userId_A,
+      partId: partId_A,
+      roleId: roleId_accountant,
+    },
+  })
+  await prisma.userPart.create({
+    data: {
+      userId: userId_B,
+      partId: partId_A,
+      roleId: roleId_subAccountant,
+    },
+  })
+  await prisma.userPart.create({
+    data: {
+      userId: userId_B,
+      partId: partId_B,
+      roleId: roleId_accountant,
+    },
+  })
+  await prisma.userPart.create({
+    data: {
+      userId: userId_C,
+      partId: partId_C,
+      roleId: roleId_accountant,
+    },
+  })
+  await prisma.userPart.create({
+    data: {
+      userId: userId_A,
+      partId: partId_D,
+      roleId: roleId_accountant,
+    },
+  })
+  await prisma.userPart.create({
+    data: {
+      userId: userId_C,
+      partId: partId_E,
+      roleId: roleId_accountant,
+    },
+  })
+
+  // ユーザーとウォレットの関連付け
+  await prisma.userWallet.create({
+    data: {
+      userId: userId_A,
+      walletId: walletId_2_1,
+    },
+  })
+  await prisma.userWallet.create({
+    data: {
+      userId: userId_B,
+      walletId: walletId_2_1,
+    },
+  })
+  await prisma.userWallet.create({
+    data: {
+      userId: userId_C,
+      walletId: walletId_2_1,
+    },
+  })
+  await prisma.userWallet.create({
+    data: {
+      userId: userId_A,
+      walletId: walletId_2_2,
+    },
+  })
+  await prisma.userWallet.create({
+    data: {
+      userId: userId_C,
+      walletId: walletId_2_2,
+    },
+  })
 }
 
 main()

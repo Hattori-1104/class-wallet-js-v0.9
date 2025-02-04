@@ -32,6 +32,9 @@
       },
       "suspicious": {
         "noReactSpecificProps": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "off"
       }
     }
   },

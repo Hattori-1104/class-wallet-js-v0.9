@@ -1,25 +1,20 @@
-import { LoaderFunctionArgs } from "@remix-run/node"
-import { Link, json, useLoaderData } from "@remix-run/react"
+import { Link } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
-import { getSession } from "~/service.server/session"
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const session = await getSession(request.headers.get("Cookie"))
-  const userId = session.get("userId")
-  return json({ userId })
-}
-
-export default function TopPage() {
-  const { userId } = useLoaderData<typeof loader>()
+export default function Index() {
   return (
-    <div>
-      <p>UserId : {userId}</p>
-      <Button>
-        <Link to="/auth/verify">認証確認ページ</Link>
-      </Button>
-      <Button>
-        <Link to="/part">パート一覧ページ</Link>
-      </Button>
+    <div className="container mx-auto p-4">
+      <h1 className="mb-6 text-3xl font-bold">ClassWallet.js</h1>
+
+      <div className="space-y-4">
+        <div className="rounded border border-gray-200 p-4">
+          <h2 className="mb-4 text-xl font-semibold">ようこそ</h2>
+          <p className="mb-4 text-gray-600">このシステムはクラスの会計を管理するためのアプリケーションです。 利用するにはログインが必要です。</p>
+          <Link to="/auth">
+            <Button size="lg">ログインページへ</Button>
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }
