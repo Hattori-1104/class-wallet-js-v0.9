@@ -28,7 +28,8 @@
         "noDefaultExport": "off",
         "useNamingConvention": "off",
         "noParameterProperties": "off",
-        "useBlockStatements": "off"
+        "useBlockStatements": "off",
+        "noImplicitBoolean": "off"
       },
       "suspicious": {
         "noReactSpecificProps": "off"

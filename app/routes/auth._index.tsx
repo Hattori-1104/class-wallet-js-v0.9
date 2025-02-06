@@ -32,41 +32,51 @@ export default function Auth() {
           </Link>
         </div>
       ) : (
-        <div className="mb-4 rounded border border-yellow-500 bg-yellow-100 p-4">
-          <p>セッションなし</p>
+        <div className="space-y-8">
+          <div className="mb-4 rounded border border-yellow-500 bg-yellow-100 p-4">
+            <p>セッションなし</p>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <h2 className="mb-2 text-xl font-semibold">生徒用</h2>
+              <div className="flex flex-col gap-2">
+                <Link to="/auth/student/login">
+                  <Button variant="outline" className="w-full">
+                    生徒ログイン
+                  </Button>
+                </Link>
+                <Link to="/auth/student/register">
+                  <Button variant="outline" className="w-full">
+                    生徒登録
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="mb-2 text-xl font-semibold">教師用</h2>
+              <div className="flex flex-col gap-2">
+                <Link to="/auth/teacher/login">
+                  <Button className="w-full">教師ログイン</Button>
+                </Link>
+                <Link to="/auth/teacher/register">
+                  <Button className="w-full">教師登録</Button>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="mb-2 text-xl font-semibold">管理者用</h2>
+              <div className="flex flex-col gap-2">
+                <Link to="/admin">
+                  <Button className="w-full">管理者ダッシュボード</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="space-y-4">
-        <div>
-          <h2 className="mb-2 text-xl font-semibold">開発用セッション作成</h2>
-          <div className="flex flex-col gap-2">
-            <Link to="/auth/dev/user-a">
-              <Button className="w-full">田中太郎としてログイン</Button>
-            </Link>
-            <Link to="/auth/dev/user-b">
-              <Button className="w-full">山田花子としてログイン</Button>
-            </Link>
-            <Link to="/auth/dev/user-c">
-              <Button className="w-full">鈴木一郎としてログイン</Button>
-            </Link>
-            <Link to="/auth/dev/teacher">
-              <Button className="w-full">山田先生としてログイン</Button>
-            </Link>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="mb-2 text-xl font-semibold">本番用認証</h2>
-          <div className="flex flex-col gap-2">
-            <Link to="/auth/login">
-              <Button variant="outline" className="w-full">
-                ログインページへ
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

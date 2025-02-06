@@ -1,21 +1,9 @@
-import { User } from "@prisma/client"
 import { createCookieSessionStorage } from "@remix-run/node"
 
-export type MinimalUserType = Pick<User, "id" | "email" | "name">
-export type ProfileUserType = Pick<User, "email" | "name">
-
-// セッションで管理するユーザータイプ
-export type SessionUserType = {
-  id: string
-  email: string
-  name: string
-  type: "user" | "teacher"
-}
-
 // セッションデータの型定義
-type SessionData = {
+export type SessionData = {
   userId: string
-  userType: "user" | "teacher"
+  userType: "student" | "teacher"
 }
 
 // フラッシュメッセージの型定義

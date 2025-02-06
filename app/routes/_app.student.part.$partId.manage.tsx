@@ -14,14 +14,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const partId = params.partId
   if (!partId) throw new Error("Part ID is required")
 
-  // ユーザーの役職を取得
+  // パートのメンバーかどうかを確認
   const userPart = await prisma.userPart.findFirst({
     where: {
       userId: session.userId,
       partId: partId,
-    },
-    include: {
-      role: true,
     },
   })
 
@@ -29,7 +26,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("このパートのメンバーではありません")
   }
 
-  const purchaseRequests = await prisma.purchaseRequest.findMany({
+  const purchases = await prisma.purchase.findMany({
     where: { partId },
     include: {
       approvedByAccountant: true,
@@ -39,7 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     orderBy: { createdAt: "desc" },
   })
 
-  return json({ purchaseRequests, userRole: userPart.role })
+  return json({ purchases })
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -54,7 +51,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const amount = Number(formData.get("amount"))
   const description = formData.get("description") as string
 
-  await prisma.purchaseRequest.create({
+  await prisma.purchase.create({
     data: {
       itemName,
       amount,
@@ -68,13 +65,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function ManagePurchase() {
-  const { purchaseRequests } = useLoaderData<typeof loader>()
-  const params = useParams()
+  const { purchases } = useLoaderData<typeof loader>()
 
   return (
     <div className="container mx-auto p-4">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">会計管理</h1>
+        <h1 className="text-2xl font-bold">購入リクエスト</h1>
       </div>
 
       {/* 新規購入リクエストフォーム */}
@@ -110,21 +106,29 @@ export default function ManagePurchase() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {purchaseRequests.map((request) => (
-              <div key={request.id} className="rounded border p-4">
+            {purchases.map((purchase) => (
+              <div key={purchase.id} className="rounded border p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="font-medium">{request.itemName}</h3>
-                  <span className="text-lg font-bold">¥{request.amount}</span>
+                  <h3 className="font-medium">{purchase.itemName}</h3>
+                  <span className="text-lg font-bold">¥{purchase.amount}</span>
                 </div>
-                <p className="text-sm text-gray-600">{request.description}</p>
+                <p className="text-sm text-gray-600">{purchase.description}</p>
                 <div className="mt-2 flex gap-4">
                   <div className="flex items-center gap-2">
                     <span className="text-sm">会計承認:</span>
-                    {request.approvedByAccountant ? <span className="text-green-600">✓</span> : <span className="text-red-600">✗</span>}
+                    {purchase.approvedByAccountant ? (
+                      <span className="text-green-600">✓ {purchase.approvedByAccountant.name}</span>
+                    ) : (
+                      <span className="text-red-600">✗ 未承認</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">教師承認:</span>
-                    {request.approvedByTeacher ? <span className="text-green-600">✓</span> : <span className="text-red-600">✗</span>}
+                    {purchase.approvedByTeacher ? (
+                      <span className="text-green-600">✓ {purchase.approvedByTeacher.name}</span>
+                    ) : (
+                      <span className="text-red-600">✗ 未承認</span>
+                    )}
                   </div>
                 </div>
               </div>

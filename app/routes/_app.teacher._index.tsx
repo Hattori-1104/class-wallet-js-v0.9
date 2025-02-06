@@ -24,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
               parts: {
                 include: {
                   wallet: true,
-                  purchaseRequests: {
+                  purchases: {
                     where: {
                       OR: [{ accountantApprovalId: null }, { teacherApprovalId: null, accountantApprovalId: { not: null } }],
                     },
@@ -72,29 +72,26 @@ export default function TeacherIndex() {
           <h2 className="mb-4 text-xl font-semibold">担当クラス</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {teacher.wallets.map(({ wallet }) => (
-              <Card key={wallet.id}>
-                <CardHeader>
-                  <CardTitle>{wallet.name}</CardTitle>
-                  <CardDescription>所属パート一覧</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      {wallet.parts.map((part) => (
-                        <p key={part.id} className="text-sm text-gray-600">
-                          • {part.name}
-                        </p>
-                      ))}
-                      {wallet.parts.length === 0 && <p className="text-sm text-gray-500">パートがありません</p>}
+              <Link to={`/teacher/wallet/${wallet.id}`} className="block" key={wallet.id}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{wallet.name}</CardTitle>
+                    <CardDescription>所属パート一覧</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        {wallet.parts.map((part) => (
+                          <p key={part.id} className="text-sm text-gray-600">
+                            • {part.name}
+                          </p>
+                        ))}
+                        {wallet.parts.length === 0 && <p className="text-sm text-gray-500">パートがありません</p>}
+                      </div>
                     </div>
-                    <Link to={`/teacher/wallet/${wallet.id}`}>
-                      <Button variant="outline" size="sm" className="w-full">
-                        詳細を見る
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>
@@ -110,35 +107,35 @@ export default function TeacherIndex() {
                     <CardTitle>
                       {wallet.name}.{part.name}
                     </CardTitle>
-                    <CardDescription>{part.purchaseRequests.length > 0 && <>承認待ちの購入リクエスト: {part.purchaseRequests.length}件</>}</CardDescription>
+                    <CardDescription>{part.purchases.length > 0 && <>承認待ちの購入リクエスト: {part.purchases.length}件</>}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {part.purchaseRequests.map((request) => (
-                        <div key={request.id} className="rounded border p-3">
+                      {part.purchases.map((purchase) => (
+                        <div key={purchase.id} className="rounded border p-3">
                           <div className="mb-2">
                             <div className="mb-1 flex items-center justify-between">
-                              <p className="font-medium">{request.itemName}</p>
-                              <span className="font-bold">¥{request.amount}</span>
+                              <p className="font-medium">{purchase.itemName}</p>
+                              <span className="font-bold">¥{purchase.amount}</span>
                             </div>
                           </div>
-                          <p className="text-sm text-gray-600">申請者: {request.requestedBy.name}</p>
+                          <p className="text-sm text-gray-600">申請者: {purchase.requestedBy.name}</p>
                           <p className="text-sm text-gray-600">
                             会計承認:{" "}
-                            {request.approvedByAccountant ? (
-                              <span className="text-green-600">✓ {request.approvedByAccountant.name}</span>
+                            {purchase.approvedByAccountant ? (
+                              <span className="text-green-600">✓ {purchase.approvedByAccountant.name}</span>
                             ) : (
                               <span className="text-red-600">✗ 未承認</span>
                             )}
                           </p>
-                          <Link to={`/teacher/request/${request.id}`} className="mt-2 block">
+                          <Link to={`/teacher/request/${purchase.id}`} className="mt-2 block">
                             <Button size="sm" variant="outline" className="w-full">
                               詳細を見る
                             </Button>
                           </Link>
                         </div>
                       ))}
-                      {part.purchaseRequests.length === 0 && <p className="text-center text-sm text-gray-500">承認待ちのリクエストはありません</p>}
+                      {part.purchases.length === 0 && <p className="text-center text-sm text-gray-500">承認待ちの購入リクエストはありません</p>}
                     </div>
                   </CardContent>
                 </Card>

@@ -7,133 +7,135 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Event {
+  id      String   @id @default(uuid())
+  name    String
+  wallets Wallet[]
+
+  budgetLimit Int
+}
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
+  id    String @id @default(uuid())
+  email String @unique
+  name  String
 
   // 所属関係
   userParts   UserPart[]
-  userWallets UserWallet[]
 
   // 購入関係
-  requestedPurchases         PurchaseRequest[] @relation("RequestedPurchases")
-  accountantApprovedPurchases PurchaseRequest[] @relation("AccountantApprovedPurchases")
+  requestedPurchases          Purchase[] @relation("RequestedPurchases")
+  accountantApprovedPurchases Purchase[] @relation("AccountantApprovedPurchases")
 }
 
 model Part {
-  id        String   @id @default(uuid())
-  name      String
+  id          String @id @default(uuid())
+  name        String
+  budgetLimit Int
 
-  // 所属関係
   users    UserPart[]
   walletId String
-  wallet   Wallet   @relation(fields: [walletId], references: [id])
+  wallet   Wallet     @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
-  // 購入関係
-  purchaseRequests PurchaseRequest[]
+  purchases Purchase[]
 
   @@index([walletId])
 }
 
 model Wallet {
-  id        String   @id @default(uuid())
-  name      String
+  id             String       @id @default(uuid())
+  name           String
+  budgetLimit    Int
+  eventId        String
+  event          Event        @relation(fields: [eventId], references: [id])
 
-  // 所属関係
   parts    Part[]
-  users    UserWallet[]
   teachers TeacherWallet[]
 }
 
-// 役職マスターテーブル
-model Role {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  userParts   UserPart[]
-}
 
-// 中間テーブル：ユーザーとパートの関連
 model UserPart {
-  id        String   @id @default(uuid())
-  userId    String
-  partId    String
-  roleId    String
+  id     String @id @default(uuid())
+  userId String
+  partId String
+  roleId Int
 
-  user      User     @relation(fields: [userId], references: [id])
-  part      Part     @relation(fields: [partId], references: [id])
-  role      Role     @relation(fields: [roleId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  part Part @relation(fields: [partId], references: [id])
 
   @@unique([userId, partId])
   @@index([userId])
   @@index([partId])
-  @@index([roleId])
 }
 
-// 中間テーブル：ユーザーとウォレットの関連
-model UserWallet {
-  id        String   @id @default(uuid())
-  userId    String
-  walletId  String
-
-  user      User     @relation(fields: [userId], references: [id])
-  wallet    Wallet   @relation(fields: [walletId], references: [id])
-
-  @@unique([userId, walletId])
-  @@index([userId])
-  @@index([walletId])
-}
-
-// 教師モデル
 model Teacher {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
 
-  // ウォレットとの関連
-  wallets   TeacherWallet[]
+  wallets TeacherWallet[]
 
-  // 購入承認との関連
-  approvedPurchases PurchaseRequest[]
+  approvedPurchases Purchase[]
 }
 
-// 中間テーブル：教師とウォレットの関連
 model TeacherWallet {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   teacherId String
   walletId  String
 
-  teacher   Teacher  @relation(fields: [teacherId], references: [id])
-  wallet    Wallet   @relation(fields: [walletId], references: [id])
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  wallet  Wallet  @relation(fields: [walletId], references: [id])
 
   @@unique([teacherId, walletId])
   @@index([teacherId])
   @@index([walletId])
 }
 
-model PurchaseRequest {
-  id                  String    @id @default(cuid())
-  itemName            String
-  amount              Int
-  description         String
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  
-  // Relations
-  part               Part      @relation(fields: [partId], references: [id])
-  partId             String
-  
-  requestedBy        User      @relation("RequestedPurchases", fields: [requestedById], references: [id])
-  requestedById      String
-  
-  approvedByAccountant User?    @relation("AccountantApprovedPurchases", fields: [accountantApprovalId], references: [id])
+model Purchase {
+  id          String   @id @default(cuid())
+  itemName    String
+  amount      Int
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  part   Part   @relation(fields: [partId], references: [id])
+  partId String
+
+  requestedBy   User   @relation("RequestedPurchases", fields: [requestedById], references: [id])
+  requestedById String
+
+  approvedByAccountant User?   @relation("AccountantApprovedPurchases", fields: [accountantApprovalId], references: [id])
   accountantApprovalId String?
-  
-  approvedByTeacher   Teacher?  @relation(fields: [teacherApprovalId], references: [id])
-  teacherApprovalId   String?
+
+  approvedByTeacher Teacher? @relation(fields: [teacherApprovalId], references: [id])
+  teacherApprovalId String?
+
+  items PurchaseItem[]
 
   @@index([partId])
   @@index([requestedById])
   @@index([accountantApprovalId])
   @@index([teacherApprovalId])
+}
+
+model PurchaseItem {
+  id          String   @id @default(uuid())
+  purchaseId  String
+  purchase    Purchase @relation(fields: [purchaseId], references: [id])
+  itemName    String
+  amount      Int
+  description String
+  productId   String
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  price       Int
+  description String?
+
+  purchaseItems PurchaseItem[]
 }
