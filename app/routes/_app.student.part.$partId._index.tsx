@@ -2,6 +2,7 @@ import type { Part, Teacher, User, UserPart } from "@prisma/client"
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData, useNavigate, useOutletContext } from "@remix-run/react"
 import { Check, X } from "lucide-react"
+import { useEffect } from "react"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
@@ -167,7 +168,10 @@ export default function PartDetail() {
   const { userPart, userParts, partId } = useLoaderData<typeof loader>()
   const { user, part, roleId } = userPart
   const { setBackRoute } = useOutletContext<{ setBackRoute: (backRoute: string) => void }>()
-  setBackRoute("/student")
+
+  useEffect(() => {
+    setBackRoute("/student")
+  }, [setBackRoute])
   const procedures = [
     { name: "購入申請", fullfilled: true },
     { name: "会計承認", fullfilled: false },
