@@ -68,3 +68,17 @@ export function setToast(session: SessionType, state: SessionFlashDataType["toas
   session.flash("toast", { state, msg })
   return session
 }
+
+const flashCases: { [key: string]: { state: SessionFlashDataType["toast"]["state"]; msg: string } } = {
+  InvalidURL: { state: "error", msg: "URLが不正です" },
+  UnAuthorized: { state: "error", msg: "セッションにユーザー情報がありません" },
+  InvalidForm: { state: "error", msg: "フォームの値が不正です" },
+  NotFound: { state: "error", msg: "データが見つかりません" },
+  InternalServerError: { state: "error", msg: "サーバーエラーが発生しました" },
+}
+
+type FlashCaseType = keyof typeof flashCases
+
+export function commitToastByCase(session: SessionType, caseName: FlashCaseType): ReturnType<typeof commitSession> {
+  return commitSession(setToast(session, flashCases[caseName].state, flashCases[caseName].msg))
+}
