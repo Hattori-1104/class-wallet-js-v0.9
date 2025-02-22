@@ -8,7 +8,7 @@ export type SessionDataType = {
 // 主にエラーハンドリングに使用
 type SessionFlashDataType = {
   toast: {
-    state: "success" | "error" | "warning"
+    state: "success" | "error" | "Incomprehensive" | "warning"
     msg: string
   }
 }
@@ -64,7 +64,7 @@ export async function destroySessionInfo(request: Request, logout = false): Prom
   return session
 }
 
-export function addToast(session: SessionType, state: "success" | "error" | "warning", msg: string) {
+export function setToast(session: SessionType, state: SessionFlashDataType["toast"]["state"], msg: string) {
   session.flash("toast", { state, msg })
   return session
 }
