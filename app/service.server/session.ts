@@ -1,19 +1,19 @@
-import { Session, createCookieSessionStorage } from "@remix-run/node"
+import { Session, SessionData, createCookieSessionStorage } from "@remix-run/node"
 
-export type SessionData = {
+export type SessionDataType = {
   userId: string
   userType: "student" | "teacher"
 }
 
 // 主にエラーハンドリングに使用
-type SessionFlashData = {
+type SessionFlashDataType = {
   toast: {
     state: "success" | "error" | "warning"
     msg: string
   }
 }
 
-const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
+const sessionStorage = createCookieSessionStorage<SessionDataType, SessionFlashDataType>({
   cookie: {
     name: "__session",
     httpOnly: true,
@@ -28,19 +28,22 @@ const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>
 export const { getSession, commitSession, destroySession } = sessionStorage
 
 // ユーティリティ
-type SessionType = Session<SessionData, SessionFlashData>
+type SessionType = Session<SessionDataType, SessionFlashDataType>
 
 // ユーザー情報をセッションから取得
-export async function getSessionInfo(request: Request): Promise<{ success: boolean; session: SessionType }> {
+export async function getSessionInfo(
+  request: Request,
+): Promise<{ success: true; session: SessionType; sessionData: SessionDataType } | { success: false; session: SessionType; sessionData: undefined }> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const userType = session.get("userType")
 
   if (userId === undefined || userType === undefined) {
     session.flash("toast", { state: "error", msg: "ログインしてください" })
-    return { success: false, session }
+    return { success: false, session, sessionData: undefined }
   }
-  return { success: true, session }
+  const sessionData: SessionDataType = { userId, userType }
+  return { success: true, session, sessionData }
 }
 
 // ユーザー情報をセッションに付与
@@ -58,5 +61,10 @@ export async function destroySessionInfo(request: Request, logout = false): Prom
   session.unset("userId")
   session.unset("userType")
   session.flash("toast", logout ? { state: "success", msg: "ログアウトしました" } : { state: "error", msg: "ユーザー情報が見つかりません" })
+  return session
+}
+
+export function addToast(session: SessionType, state: "success" | "error" | "warning", msg: string) {
+  session.flash("toast", { state, msg })
   return session
 }
