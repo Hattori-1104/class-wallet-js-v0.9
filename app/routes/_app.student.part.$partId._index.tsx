@@ -9,16 +9,16 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 import { Progress } from "~/components/ui/progress"
 import { ScrollArea } from "~/components/ui/scroll-area"
 import { prisma } from "~/service.server/repository"
-import { commitSession, destroySessionInfo, getSessionInfo, setToast } from "~/service.server/session"
+import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { success, session, sessionData } = await getSessionInfo(request)
-  if (!success) return redirect("/auth", { headers: { "Set-Cookie": await commitSession(await destroySessionInfo(request)) } })
+  if (!success) return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request) } })
 
   const userId = sessionData.userId
 
   const partId = params.partId
-  if (partId === undefined) return redirect("/student", { headers: { "Set-Cookie": await commitSession(setToast(session, "error", "URLが不正です")) } })
+  if (partId === undefined) return redirect("/student", { headers: { "Set-Cookie": await commitToastByCase(session, "InvalidURL") } })
 
   // userPartテーブルを使用してパートの詳細情報を取得
   const userPart = await prisma.userPart.findFirst({
@@ -55,9 +55,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       user: true,
     },
   })
-  if (!userPart) return redirect("/student", { headers: { "Set-Cookie": await commitSession(setToast(session, "error", "パートが見つかりません")) } })
-  if (userParts.length === 0)
-    return redirect("/student", { headers: { "Set-Cookie": await commitSession(setToast(session, "Incomprehensive", "パートが見つかりません")) } })
+  if (!userPart) return redirect("/student", { headers: { "Set-Cookie": await commitToastByCase(session, "NotFound") } })
+  if (userParts.length === 0) return redirect("/student", { headers: { "Set-Cookie": await commitToastByCase(session, "NotFound") } })
   return json({ userPart, userParts, partId })
 }
 

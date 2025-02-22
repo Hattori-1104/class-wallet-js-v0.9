@@ -30,16 +30,47 @@ export const { getSession, commitSession, destroySession } = sessionStorage
 // ユーティリティ
 type SessionType = Session<SessionDataType, SessionFlashDataType>
 
-// ユーザー情報をセッションから取得
+// トーストを設定
+export function setToast(session: SessionType, state: SessionFlashDataType["toast"]["state"], msg: string) {
+  session.flash("toast", { state, msg })
+  return session
+}
+
+// トーストのケース
+const flashCases = {
+  InvalidURL: { state: "error", msg: "URLが不正です" },
+  UnAuthorized: { state: "error", msg: "ユーザー情報がありません" },
+  InvalidForm: { state: "error", msg: "フォームの値が不正です" },
+  NotFound: { state: "error", msg: "データが見つかりません" },
+  InternalServerError: { state: "error", msg: "サーバーエラーが発生しました" },
+  Logout: { state: "success", msg: "ログアウトしました" },
+  NotAccountant: { state: "error", msg: "会計ではありません" },
+  RequestApproved: { state: "success", msg: "リクエストを承認しました" },
+  RequestRejected: { state: "success", msg: "リクエストを拒否しました" },
+} as const satisfies Record<string, { state: SessionFlashDataType["toast"]["state"]; msg: string }>
+
+// トーストのケースの識別名
+type FlashCaseType = keyof typeof flashCases
+
+// セッションにケース別のトーストを設定
+export function setToastByCase(session: SessionType, caseName: FlashCaseType): SessionType {
+  return setToast(session, flashCases[caseName].state, flashCases[caseName].msg)
+}
+// コミットも行う場合
+export async function commitToastByCase(session: SessionType, caseName: FlashCaseType): Promise<ReturnType<typeof commitSession>> {
+  return await commitSession(setToastByCase(session, caseName))
+}
+
+// セッションデータに型を持たせる
+// ユーザー情報をリクエストヘッダーのセッションから取得
+// 重要：セッションを生成して返す
 export async function getSessionInfo(
   request: Request,
 ): Promise<{ success: true; session: SessionType; sessionData: SessionDataType } | { success: false; session: SessionType; sessionData: undefined }> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const userType = session.get("userType")
-
   if (userId === undefined || userType === undefined) {
-    session.flash("toast", { state: "error", msg: "ログインしてください" })
     return { success: false, session, sessionData: undefined }
   }
   const sessionData: SessionDataType = { userId, userType }
@@ -56,29 +87,9 @@ export async function setSessionInfo(request: Request, data: SessionData): Promi
 
 // ユーザー情報を削除する
 // ログアウト処理とユーザー情報が見つからない場合のエラーハンドリングを行う
-export async function destroySessionInfo(request: Request, logout = false): Promise<SessionType> {
+export async function destroySessionInfo(request: Request, logout = false): Promise<ReturnType<typeof commitToastByCase>> {
   const session = await getSession(request.headers.get("Cookie"))
   session.unset("userId")
   session.unset("userType")
-  session.flash("toast", logout ? { state: "success", msg: "ログアウトしました" } : { state: "error", msg: "ユーザー情報が見つかりません" })
-  return session
-}
-
-export function setToast(session: SessionType, state: SessionFlashDataType["toast"]["state"], msg: string) {
-  session.flash("toast", { state, msg })
-  return session
-}
-
-const flashCases: { [key: string]: { state: SessionFlashDataType["toast"]["state"]; msg: string } } = {
-  InvalidURL: { state: "error", msg: "URLが不正です" },
-  UnAuthorized: { state: "error", msg: "セッションにユーザー情報がありません" },
-  InvalidForm: { state: "error", msg: "フォームの値が不正です" },
-  NotFound: { state: "error", msg: "データが見つかりません" },
-  InternalServerError: { state: "error", msg: "サーバーエラーが発生しました" },
-}
-
-type FlashCaseType = keyof typeof flashCases
-
-export function commitToastByCase(session: SessionType, caseName: FlashCaseType): ReturnType<typeof commitSession> {
-  return commitSession(setToast(session, flashCases[caseName].state, flashCases[caseName].msg))
+  return await commitToastByCase(session, logout ? "Logout" : "UnAuthorized")
 }

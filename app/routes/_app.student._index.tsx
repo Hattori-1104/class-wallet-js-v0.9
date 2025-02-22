@@ -4,11 +4,11 @@ import { Link, useLoaderData } from "@remix-run/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 
 import { prisma } from "~/service.server/repository"
-import { commitSession, destroySessionInfo, getSessionInfo } from "~/service.server/session"
+import { destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { success, session } = await getSessionInfo(request)
-  if (!success) return redirect("/auth/student/login", { headers: { "Set-Cookie": await commitSession(session) } })
+  if (!success) return redirect("/auth/student/login", { headers: { "Set-Cookie": await destroySessionInfo(request) } })
   const userId = session.get("userId")
 
   const user = await prisma.user.findUnique({
@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   })
   // ユーザー情報が見つからない場合はログアウト処理を行う
-  if (!user) return redirect("/auth", { headers: { "Set-Cookie": await commitSession(await destroySessionInfo(request)) } })
+  if (!user) return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request) } })
 
   return { user }
 }
