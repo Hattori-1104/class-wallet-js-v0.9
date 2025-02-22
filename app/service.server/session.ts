@@ -1,18 +1,18 @@
-import { createCookieSessionStorage } from "@remix-run/node"
+import { Session, createCookieSessionStorage } from "@remix-run/node"
 
-// セッションデータの型定義
 export type SessionData = {
   userId: string
   userType: "student" | "teacher"
 }
 
-// フラッシュメッセージの型定義
+// 主にエラーハンドリングに使用
 type SessionFlashData = {
-  error?: string
-  success?: string
+  toast: {
+    state: "success" | "error" | "warning"
+    msg: string
+  }
 }
 
-// セッションストレージの作成
 const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>({
   cookie: {
     name: "__session",
@@ -25,29 +25,38 @@ const sessionStorage = createCookieSessionStorage<SessionData, SessionFlashData>
   },
 })
 
-// セッション管理用の関数
 export const { getSession, commitSession, destroySession } = sessionStorage
 
-// セッション情報の取得
-export async function getSessionInfo(request: Request): Promise<SessionData | null> {
+// ユーティリティ
+type SessionType = Session<SessionData, SessionFlashData>
+
+// ユーザー情報をセッションから取得
+export async function getSessionInfo(request: Request): Promise<{ success: boolean; session: SessionType }> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const userType = session.get("userType")
 
-  if (!userId || !userType) return null
-  return { userId, userType }
+  if (userId === undefined || userType === undefined) {
+    session.flash("toast", { state: "error", msg: "ログインしてください" })
+    return { success: false, session }
+  }
+  return { success: true, session }
 }
 
-// セッションの設定
-export async function setSessionInfo(request: Request, data: SessionData): Promise<string> {
+// ユーザー情報をセッションに付与
+export async function setSessionInfo(request: Request, data: SessionData): Promise<SessionType> {
   const session = await getSession(request.headers.get("Cookie"))
   session.set("userId", data.userId)
   session.set("userType", data.userType)
-  return commitSession(session)
+  return session
 }
 
-// セッションの破棄
-export async function destroySessionInfo(request: Request): Promise<string> {
+// ユーザー情報を削除する
+// ログアウト処理とユーザー情報が見つからない場合のエラーハンドリングを行う
+export async function destroySessionInfo(request: Request, logout = false): Promise<SessionType> {
   const session = await getSession(request.headers.get("Cookie"))
-  return destroySession(session)
+  session.unset("userId")
+  session.unset("userType")
+  session.flash("toast", logout ? { state: "success", msg: "ログアウトしました" } : { state: "error", msg: "ユーザー情報が見つかりません" })
+  return session
 }
