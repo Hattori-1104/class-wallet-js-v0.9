@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "~/components/ui/drawer"
 import { Progress } from "~/components/ui/progress"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { ContextType } from "~/routes/_app"
+import { AppContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
 import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -61,113 +61,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({ userPart, userParts, partId })
 }
 
-// const _userList = [
-//   {
-//     id: 1,
-//     name: "山田太郎",
-//     email: "taro@example.com",
-//   },
-//   {
-//     id: 2,
-//     name: "鈴木花子",
-//     email: "hanako@example.com",
-//   },
-//   {
-//     id: 3,
-//     name: "佐藤一郎",
-//     email: "ichiro@example.com",
-//   },
-//   {
-//     id: 4,
-//     name: "田中美咲",
-//     email: "misaki@example.com",
-//   },
-//   {
-//     id: 5,
-//     name: "中村翔太",
-//     email: "shota@example.com",
-//   },
-//   {
-//     id: 6,
-//     name: "小林優子",
-//     email: "yuko@example.com",
-//   },
-//   {
-//     id: 7,
-//     name: "加藤健一",
-//     email: "kenichi@example.com",
-//   },
-//   {
-//     id: 8,
-//     name: "渡辺美穂",
-//     email: "miho@example.com",
-//   },
-//   {
-//     id: 9,
-//     name: "伊藤大輔",
-//     email: "daisuke@example.com",
-//   },
-//   {
-//     id: 10,
-//     name: "木村真理",
-//     email: "mari@example.com",
-//   },
-//   {
-//     id: 11,
-//     name: "高橋和也",
-//     email: "kazuya@example.com",
-//   },
-//   {
-//     id: 12,
-//     name: "松本さくら",
-//     email: "sakura@example.com",
-//   },
-//   {
-//     id: 13,
-//     name: "山本龍一",
-//     email: "ryuichi@example.com",
-//   },
-//   {
-//     id: 14,
-//     name: "斎藤美咲",
-//     email: "misaki.s@example.com",
-//   },
-//   {
-//     id: 15,
-//     name: "井上拓也",
-//     email: "takuya@example.com",
-//   },
-//   {
-//     id: 16,
-//     name: "清水香織",
-//     email: "kaori@example.com",
-//   },
-//   {
-//     id: 17,
-//     name: "阿部直人",
-//     email: "naoto@example.com",
-//   },
-//   {
-//     id: 18,
-//     name: "山口めぐみ",
-//     email: "megumi@example.com",
-//   },
-//   {
-//     id: 19,
-//     name: "石田健太",
-//     email: "kenta@example.com",
-//   },
-//   {
-//     id: 20,
-//     name: "前田由美",
-//     email: "yumi@example.com",
-//   },
-// ]
-
 export default function PartDetail() {
   const { userPart, userParts, partId } = useLoaderData<typeof loader>()
   const { user, part, roleId } = userPart
-  const { setBackRoute } = useOutletContext<ContextType>()
+  const { setBackRoute } = useOutletContext<AppContextType>()
 
   useEffect(() => {
     setBackRoute("/student")

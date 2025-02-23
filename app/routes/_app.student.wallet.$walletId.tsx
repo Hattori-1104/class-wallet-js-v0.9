@@ -2,7 +2,7 @@ import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react"
 import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { ContextType } from "~/routes/_app"
+import { AppContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
 import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
@@ -39,7 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function WalletDetail() {
   const { wallet } = useLoaderData<typeof loader>()
-  const { setBackRoute } = useOutletContext<ContextType>()
+  const { setBackRoute } = useOutletContext<AppContextType>()
 
   useEffect(() => {
     setBackRoute("/student")

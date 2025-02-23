@@ -2,13 +2,13 @@ import { type ActionFunctionArgs, type LoaderFunctionArgs, json, redirect } from
 import { Form, useLoaderData } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 import { destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) throw new Error("Unauthorized")
-  const userId = session.userId
+  const { success, sessionData } = await getSessionInfo(request)
+  if (!success) throw new Error("Unauthorized")
+  const userId = sessionData.userId
   if (!userId) throw new Error("User ID is required")
 
   const requestId = params.requestId
@@ -52,9 +52,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) throw new Error("Unauthorized")
-  const userId = session.userId
+  const { success, sessionData } = await getSessionInfo(request)
+  if (!success) throw new Error("Unauthorized")
+  const userId = sessionData.userId
   if (!userId) throw new Error("User ID is required")
 
   const requestId = params.requestId

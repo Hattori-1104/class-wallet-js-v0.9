@@ -12,7 +12,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog"
 import { Button } from "~/components/ui/button"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { eventId } = params
@@ -36,8 +36,8 @@ export default function AdminEventIndex() {
     fetcher.submit({}, { method: "post", action: url })
   }
 
-  const generateInvitationUrl = (walletId: string, partId: string, accountant: number) => {
-    return `http://localhost:5173/invitation/${eventId}/${walletId}/${partId}?accountant=${accountant}`
+  const generateInvitationUrl = (partId: string, accountant: number) => {
+    return `http://localhost:5173/invitation/${partId}?accountant=${accountant}`
   }
 
   const copyToClipboard = (text: string) => {
@@ -104,7 +104,7 @@ export default function AdminEventIndex() {
                           <Pencil className="mr-1" /> 編集
                         </Button>
                       </Link>
-                      <Button size="sm" className="flex items-center" onClick={() => copyToClipboard(generateInvitationUrl(wallet.id, part.id, 0))}>
+                      <Button size="sm" className="flex items-center" onClick={() => copyToClipboard(generateInvitationUrl(part.id, 0))}>
                         URLをコピー
                       </Button>
                       <AlertDialog>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Slider } from "~/components/ui/slider"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { walletId, eventId } = params

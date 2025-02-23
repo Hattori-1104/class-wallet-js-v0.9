@@ -1,6 +1,6 @@
 import { Link, json, useLoaderData } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
 export const loader = async () => {
   const events = await prisma.event.findMany()

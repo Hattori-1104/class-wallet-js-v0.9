@@ -1,14 +1,11 @@
-import { type ActionFunctionArgs, redirect } from "@remix-run/node"
+import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "@remix-run/node"
 import { destroySessionInfo } from "~/service.server/session"
 
+// どちらもログアウトとして処理
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const session = await destroySessionInfo(request)
-  return redirect("/auth", {
-    headers: {
-      "Set-Cookie": session,
-    },
-  })
+  return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request, true) } })
 }
 
-// GETリクエストは認証ページにリダイレクト
-export const loader = () => redirect("/auth")
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request, true) } })
+}

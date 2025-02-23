@@ -1,7 +1,7 @@
 import { type ActionFunction } from "@remix-run/node"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ params }) => {
   const { walletId } = params
   if (!walletId) throw new Error("Wallet ID is required")
 

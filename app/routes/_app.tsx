@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button"
 import { prisma } from "~/service.server/repository"
 import { commitToastByCase, getSessionInfo } from "~/service.server/session"
 
-export type ContextType = {
+export type AppContextType = {
   setBackRoute: (backRoute: string) => void
 }
 

@@ -2,17 +2,17 @@ import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 import { destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) throw new Error("Unauthorized")
-  if (session.userType !== "teacher") throw new Error("Unauthorized")
+  const { success, session, sessionData } = await getSessionInfo(request)
+  if (!success) throw new Error("Unauthorized")
+  if (sessionData.userType !== "teacher") throw new Error("Unauthorized")
 
   const teacher = await prisma.teacher.findFirst({
     where: {
-      id: session.userId,
+      id: sessionData.userId,
     },
     include: {
       wallets: {

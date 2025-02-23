@@ -1,33 +1,18 @@
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import { Link, useOutletContext } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
-import { getSessionInfo } from "~/service.server/session"
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-
-  // セッションがある場合は適切なページにリダイレクト
-  if (session) {
-    const path = session.userType === "teacher" ? "/teacher" : "/student"
-    return redirect(path)
-  }
-
-  return json({
-    isAuthenticated: false,
-  })
-}
+import { AuthContextType } from "~/routes/auth"
 
 export default function Auth() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
+  const { sessionData } = useOutletContext<AuthContextType>()
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-2xl font-bold">認証ページ（開発用）</h1>
 
-      {isAuthenticated ? (
+      {sessionData ? (
         <div className="mb-4 rounded border border-green-500 bg-green-100 p-4">
           <p>認証済みです</p>
-          <Link to="/app">
+          <Link to={sessionData.userType === "teacher" ? "/teacher" : "/student"}>
             <Button className="mt-2">アプリケーションへ</Button>
           </Link>
         </div>

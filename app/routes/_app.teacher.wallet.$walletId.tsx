@@ -1,15 +1,13 @@
-import type { Part, Wallet } from "@prisma/client"
+import type { Wallet } from "@prisma/client"
 import { type LoaderFunctionArgs, json } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
-import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { prisma } from "~/service.server/db"
+import { useLoaderData } from "@remix-run/react"
+import { WalletCard } from "~/components/wallet-card"
+import { prisma } from "~/service.server/repository"
 import { getSessionInfo } from "~/service.server/session"
-import { WalletCard } from "../../components/ui/WalletCard"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) throw new Error("Unauthorized")
+  const { success, sessionData } = await getSessionInfo(request)
+  if (!success) throw new Error("Unauthorized")
 
   const walletId = params.walletId
   if (!walletId) throw new Error("Wallet ID is required")
@@ -42,7 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   // 教師が担当クラスにアクセスしているか確認
-  const isTeacherOfWallet = wallet.teachers.some((t: { id: string }) => t.id === session.userId)
+  const isTeacherOfWallet = wallet.teachers.some((t: { id: string }) => t.id === sessionData.userId)
   if (!isTeacherOfWallet) throw new Error("Unauthorized")
 
   return json(wallet)

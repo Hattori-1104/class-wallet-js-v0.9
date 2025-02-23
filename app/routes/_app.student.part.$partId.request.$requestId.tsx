@@ -3,7 +3,7 @@ import { Form, useLoaderData, useOutletContext } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { requestFormSchema } from "~/lib/validations/request"
-import { ContextType } from "~/routes/_app"
+import { AppContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
 import { commitSession, commitToastByCase, destroySessionInfo, getSessionInfo, setToast } from "~/service.server/session"
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -89,7 +89,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function RequestDetail() {
   const { purchase, partId } = useLoaderData<typeof loader>()
-  const { setBackRoute } = useOutletContext<ContextType>()
+  const { setBackRoute } = useOutletContext<AppContextType>()
   setBackRoute(`/student/part/${partId}`)
 
   return (

@@ -1,9 +1,9 @@
+import { type ActionFunctionArgs, json, redirect } from "@remix-run/node"
 import { Form } from "@remix-run/react"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
-import { type ActionFunctionArgs, json, redirect } from "@remix-run/node"
-import { getSession, commitSession } from "~/service.server/session"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
+import { commitSession, getSession } from "~/service.server/session"
 
 export default function TeacherRegister() {
   return (
@@ -78,4 +78,4 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   headers.append("Set-Cookie", await commitSession(session))
 
   return redirect("/teacher", { headers })
-} 
+}

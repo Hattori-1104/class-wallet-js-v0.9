@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
-import { ContextType } from "~/routes/_app"
+import { AppContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
 import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
@@ -68,7 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function ManagePurchase() {
   const { purchases, partId } = useLoaderData<typeof loader>()
-  const { setBackRoute } = useOutletContext<ContextType>()
+  const { setBackRoute } = useOutletContext<AppContextType>()
   useEffect(() => {
     setBackRoute(`/student/part/${partId}`)
   }, [setBackRoute, partId])

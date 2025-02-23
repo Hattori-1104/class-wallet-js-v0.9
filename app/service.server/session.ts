@@ -66,12 +66,12 @@ export async function commitToastByCase(session: SessionType, caseName: FlashCas
 // 重要：セッションを生成して返す
 export async function getSessionInfo(
   request: Request,
-): Promise<{ success: true; session: SessionType; sessionData: SessionDataType } | { success: false; session: SessionType; sessionData: undefined }> {
+): Promise<{ success: true; session: SessionType; sessionData: SessionDataType } | { success: false; session: SessionType; sessionData: null }> {
   const session = await getSession(request.headers.get("Cookie"))
   const userId = session.get("userId")
   const userType = session.get("userType")
   if (userId === undefined || userType === undefined) {
-    return { success: false, session, sessionData: undefined }
+    return { success: false, session, sessionData: null }
   }
   const sessionData: SessionDataType = { userId, userType }
   return { success: true, session, sessionData }

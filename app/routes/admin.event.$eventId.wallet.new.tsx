@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 import { Slider } from "~/components/ui/slider"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { eventId } = params

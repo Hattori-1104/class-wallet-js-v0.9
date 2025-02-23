@@ -3,7 +3,7 @@ import { type ActionFunctionArgs } from "@remix-run/node"
 import { Form, Link, useLoaderData } from "@remix-run/react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { Button } from "~/components/ui/button"
-import { prisma } from "~/service.server/db"
+import { prisma } from "~/service.server/repository"
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { walletId } = params
@@ -11,7 +11,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return json({ parts })
 }
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+export const action = async ({ params }: ActionFunctionArgs) => {
   const { partId } = params
   if (!partId) throw new Error("Part ID is required")
 
