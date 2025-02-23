@@ -487,14 +487,14 @@ const routes = {
     hasWorkerAction: false,
     module: route4
   },
-  "routes/invitation.$eventId.$walletId.$partId": {
-    id: "routes/invitation.$eventId.$walletId.$partId",
-    parentId: "root",
-    path: "invitation/:eventId/:walletId/:partId",
+  "routes/_app.student.part.$partId.request.$requestId": {
+    id: "routes/_app.student.part.$partId.request.$requestId",
+    parentId: "routes/_app",
+    path: "student/part/:partId/request/:requestId",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: true,
-    hasAction: false,
+    hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
     module: route5
@@ -505,23 +505,11 @@ const routes = {
     path: "student/part/:partId/request/new",
     index: void 0,
     caseSensitive: void 0,
-    hasLoader: false,
-    hasAction: true,
-    hasWorkerLoader: false,
-    hasWorkerAction: false,
-    module: route6
-  },
-  "routes/_app.student.part.$partId.manage": {
-    id: "routes/_app.student.part.$partId.manage",
-    parentId: "routes/_app",
-    path: "student/part/:partId/manage",
-    index: void 0,
-    caseSensitive: void 0,
     hasLoader: true,
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route7
+    module: route6
   },
   "routes/_app.student.part.$partId._index": {
     id: "routes/_app.student.part.$partId._index",
@@ -533,7 +521,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route8
+    module: route7
   },
   "routes/admin.event.$eventId.wallet.new": {
     id: "routes/admin.event.$eventId.wallet.new",
@@ -545,7 +533,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route9
+    module: route8
   },
   "routes/_app.teacher.request.$requestId": {
     id: "routes/_app.teacher.request.$requestId",
@@ -557,7 +545,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route10
+    module: route9
   },
   "routes/_app.student.wallet.$walletId": {
     id: "routes/_app.student.wallet.$walletId",
@@ -569,7 +557,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route11
+    module: route10
   },
   "routes/_app.teacher.wallet.$walletId": {
     id: "routes/_app.teacher.wallet.$walletId",
@@ -581,7 +569,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route12
+    module: route11
   },
   "routes/admin.event.$eventId._index": {
     id: "routes/admin.event.$eventId._index",
@@ -593,7 +581,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route13
+    module: route12
   },
   "routes/auth.student.register": {
     id: "routes/auth.student.register",
@@ -605,7 +593,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route14
+    module: route13
   },
   "routes/auth.teacher.register": {
     id: "routes/auth.teacher.register",
@@ -617,7 +605,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route15
+    module: route14
   },
   "routes/_app.student._index": {
     id: "routes/_app.student._index",
@@ -629,7 +617,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route16
+    module: route15
   },
   "routes/_app.teacher._index": {
     id: "routes/_app.teacher._index",
@@ -641,7 +629,7 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route17
+    module: route16
   },
   "routes/auth.student.login": {
     id: "routes/auth.student.login",
@@ -653,7 +641,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route18
+    module: route17
   },
   "routes/auth.teacher.login": {
     id: "routes/auth.teacher.login",
@@ -663,6 +651,18 @@ const routes = {
     caseSensitive: void 0,
     hasLoader: false,
     hasAction: true,
+    hasWorkerLoader: false,
+    hasWorkerAction: false,
+    module: route18
+  },
+  "routes/invitation.$partId": {
+    id: "routes/invitation.$partId",
+    parentId: "root",
+    path: "invitation/:partId",
+    index: void 0,
+    caseSensitive: void 0,
+    hasLoader: true,
+    hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
     module: route19
