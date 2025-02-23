@@ -1,37 +1,65 @@
-import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
-import { Form, Link, Outlet, useLoaderData, useLocation } from "@remix-run/react"
+import { type LoaderFunctionArgs, redirect } from "@remix-run/node"
+import { Form, Link, Outlet, useLoaderData, useLocation, useMatches, useNavigate } from "@remix-run/react"
+import { ChevronLeft, LogOut } from "lucide-react"
+import { useState } from "react"
 import { Button } from "~/components/ui/button"
-import { getSessionInfo } from "~/service.server/session"
+import { prisma } from "~/service.server/repository"
+import { commitToastByCase, getSessionInfo } from "~/service.server/session"
+
+export type ContextType = {
+  setBackRoute: (backRoute: string) => void
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) {
-    return redirect("/auth")
+  const { success, session, sessionData } = await getSessionInfo(request)
+  if (!success) {
+    return redirect("/auth", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
   }
 
   // URLのパスを取得
   const url = new URL(request.url)
   const path = url.pathname
 
-  // ユーザータイプに基づいてリダイレクト
-  if (session.userType === "teacher") {
-    // 教師用ページへのアクセスを許可
+  if (sessionData.userType === "teacher") {
+    // 教師用ページへリダイレクト
     if (!path.startsWith("/teacher")) {
       return redirect("/teacher")
     }
-  } else {
-    // 生徒用ページへのアクセスを許可
+    const user = await prisma.teacher.findUnique({
+      where: {
+        id: sessionData.userId,
+      },
+    })
+    if (user === null) {
+      return redirect("/auth/teacher", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
+    }
+    return { user, userType: sessionData.userType }
+  }
+
+  if (sessionData.userType === "student") {
+    // 生徒用ページへリダイレクト
     if (!path.startsWith("/student")) {
       return redirect("/student")
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        id: sessionData.userId,
+      },
+    })
+    if (user === null) {
+      return redirect("/auth/student", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
+    }
+    return { user, userType: sessionData.userType }
   }
 
-  return json({ userType: session.userType })
+  return redirect("/auth", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
 }
 
 export default function AppLayout() {
-  const { userType } = useLoaderData<typeof loader>()
+  const { user, userType } = useLoaderData<typeof loader>()
   const location = useLocation()
+  const navigate = useNavigate()
+  const [backRoute, setBackRoute] = useState<string>("/")
   const isRootPath = location.pathname === "/student" || location.pathname === "/teacher"
 
   return (
@@ -45,20 +73,20 @@ export default function AppLayout() {
                 <h1 className="text-xl font-bold">ClassWallet.js</h1>
               </Link>
             ) : (
-              <button
-                type="button"
-                onClick={() => window.history.back()}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100"
-              >
-                ←
-              </button>
+              <Button type="submit" size="icon" onClick={() => navigate(backRoute)} variant="ghost" className="border border-gray-200 hover:bg-gray-100">
+                <ChevronLeft />
+              </Button>
             )}
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="flex flex-col text-right">
+              <div className="text-sm font-medium">{user.name}</div>
+              <div className="text-xs text-gray-500">{user.email}</div>
+            </div>
             <Form action="/auth/logout" method="post">
-              <Button variant="outline" type="submit">
-                ログアウト
+              <Button variant="outline" type="submit" size="icon">
+                <LogOut />
               </Button>
             </Form>
           </div>
@@ -67,7 +95,7 @@ export default function AppLayout() {
 
       {/* メインコンテンツ */}
       <main className="min-h-[calc(100vh-4rem)] bg-gray-50">
-        <Outlet />
+        <Outlet context={{ setBackRoute }} />
       </main>
     </div>
   )

@@ -9,9 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "~/components/ui/drawer"
 import { Progress } from "~/components/ui/progress"
 import { ScrollArea } from "~/components/ui/scroll-area"
+import { ContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
 import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
-
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { success, session, sessionData } = await getSessionInfo(request)
   if (!success) return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request) } })
@@ -167,7 +167,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function PartDetail() {
   const { userPart, userParts, partId } = useLoaderData<typeof loader>()
   const { user, part, roleId } = userPart
-  const { setBackRoute } = useOutletContext<{ setBackRoute: (backRoute: string) => void }>()
+  const { setBackRoute } = useOutletContext<ContextType>()
 
   useEffect(() => {
     setBackRoute("/student")
@@ -241,7 +241,7 @@ export default function PartDetail() {
               {userParts
                 .sort((a, b) => b.roleId - a.roleId - a.roleId)
                 .map(({ user, roleId }) => (
-                  <div key={user.id} className="flex items-center justify-between rounded border p-3">
+                  <div key={user.id} className="flex items-center justify-between border-t p-3">
                     <div className="flex flex-row items-center justify-between w-full">
                       <div>
                         <p className="font-medium">{user.name}</p>
@@ -302,10 +302,7 @@ export default function PartDetail() {
                       <p>test</p>
                       <div className="flex flex-row w-full justify-between gap-2">
                         {procedures.map((procedure) => (
-                          <div
-                            key={procedure.name}
-                            className={`text-center grow border border-l-4 pr-2 rounded-e-full py-2 ${procedure.fullfilled ? "bg-green-200" : "bg-slate-100"}`}
-                          >
+                          <div key={procedure.name} className="text-center grow border py-2">
                             <p>{procedure.name}</p>
                           </div>
                         ))}
