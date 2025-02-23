@@ -1,16 +1,17 @@
-import { type LoaderFunctionArgs, json } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
-import { Button } from "~/components/ui/button"
+import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
+import { Link, useLoaderData, useOutletContext } from "@remix-run/react"
+import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
-import { prisma } from "~/service.server/db"
-import { getSessionInfo } from "~/service.server/session"
+import { ContextType } from "~/routes/_app"
+import { prisma } from "~/service.server/repository"
+import { commitToastByCase, destroySessionInfo, getSessionInfo } from "~/service.server/session"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const session = await getSessionInfo(request)
-  if (!session) throw new Error("Unauthorized")
+  const { success, session, sessionData } = await getSessionInfo(request)
+  if (!success) return redirect("/auth", { headers: { "Set-Cookie": await destroySessionInfo(request) } })
 
   const walletId = params.walletId
-  if (!walletId) throw new Error("Wallet ID is required")
+  if (!walletId) return redirect("/student", { headers: { "Set-Cookie": await commitToastByCase(session, "InvalidURL") } })
 
   const wallet = await prisma.wallet.findUnique({
     where: { id: walletId },
@@ -31,13 +32,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       },
     },
   })
-  if (!wallet) throw new Error("Wallet not found")
+  if (!wallet) return redirect("/student", { headers: { "Set-Cookie": await commitToastByCase(session, "NotFound") } })
 
   return json({ wallet })
 }
 
 export default function WalletDetail() {
   const { wallet } = useLoaderData<typeof loader>()
+  const { setBackRoute } = useOutletContext<ContextType>()
+
+  useEffect(() => {
+    setBackRoute("/student")
+  }, [setBackRoute])
 
   return (
     <div className="container mx-auto p-4">
