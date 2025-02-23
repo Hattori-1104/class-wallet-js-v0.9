@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Form, useLoaderData, useOutletContext } from "@remix-run/react"
+import { useEffect } from "react"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { requestFormSchema } from "~/lib/validations/request"
@@ -90,7 +91,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function RequestDetail() {
   const { purchase, partId } = useLoaderData<typeof loader>()
   const { setBackRoute } = useOutletContext<AppContextType>()
-  setBackRoute(`/student/part/${partId}`)
+  useEffect(() => {
+    setBackRoute(`/student/part/${partId}`)
+  }, [setBackRoute, partId])
 
   return (
     <div className="container mx-auto p-4">
