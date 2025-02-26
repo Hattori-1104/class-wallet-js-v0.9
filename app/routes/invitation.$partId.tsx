@@ -26,7 +26,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   }
 
   // 会計担当者の値が不正な場合は警告メッセージを表示してリダイレクト
-  if (![0, 1].includes(accountant)) {
+  if (![0, 1, 2].includes(accountant)) {
     return redirect("/student", {
       headers: { "Set-Cookie": await commitToastByCase(session, "NotAccountant") },
     })
@@ -34,14 +34,36 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   // ここエラーハンドリングしてないです！！！！
   // ユーザーのパート情報を作成
-  await prisma.userPart.create({
-    data: {
+  const userPart = await prisma.userPart.findFirst({
+    where: {
       userId,
       partId,
-      roleId: accountant,
     },
   })
 
-  // 生徒のダッシュボードへリダイレクト
-  return redirect("/student")
+  if (!userPart) {
+    await prisma.userPart.create({
+      data: {
+        userId,
+        partId,
+        roleId: accountant,
+      },
+    })
+    return redirect("/student", {
+      headers: { "Set-Cookie": await commitToastByCase(session, "InvitationSuccess") },
+    })
+  }
+  if (userPart.roleId !== accountant) {
+    await prisma.userPart.update({
+      where: { id: userPart.id },
+      data: { roleId: accountant },
+    })
+    return redirect("/student", {
+      headers: { "Set-Cookie": await commitToastByCase(session, "InvitationSuccess") },
+    })
+  }
+
+  return redirect("/student", {
+    headers: { "Set-Cookie": await commitToastByCase(session, "AlreadyJoined") },
+  })
 }

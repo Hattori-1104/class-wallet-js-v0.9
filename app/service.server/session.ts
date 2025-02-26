@@ -47,6 +47,8 @@ const flashCases = {
   NotAccountant: { state: "error", msg: "会計ではありません" },
   RequestApproved: { state: "success", msg: "リクエストを承認しました" },
   RequestRejected: { state: "success", msg: "リクエストを拒否しました" },
+  InvitationSuccess: { state: "success", msg: "招待を受け入れました" },
+  AlreadyJoined: { state: "success", msg: "すでに参加しています" },
 } as const satisfies Record<string, { state: SessionFlashDataType["toast"]["state"]; msg: string }>
 
 // トーストのケースの識別名

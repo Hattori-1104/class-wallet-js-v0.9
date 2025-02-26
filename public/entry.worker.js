@@ -585,8 +585,8 @@ const routes = {
   },
   "routes/auth.student.register": {
     id: "routes/auth.student.register",
-    parentId: "root",
-    path: "auth/student/register",
+    parentId: "routes/auth",
+    path: "student/register",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: false,
@@ -597,8 +597,8 @@ const routes = {
   },
   "routes/auth.teacher.register": {
     id: "routes/auth.teacher.register",
-    parentId: "root",
-    path: "auth/teacher/register",
+    parentId: "routes/auth",
+    path: "teacher/register",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: false,
@@ -633,8 +633,8 @@ const routes = {
   },
   "routes/auth.student.login": {
     id: "routes/auth.student.login",
-    parentId: "root",
-    path: "auth/student/login",
+    parentId: "routes/auth",
+    path: "student/login",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: false,
@@ -645,8 +645,8 @@ const routes = {
   },
   "routes/auth.teacher.login": {
     id: "routes/auth.teacher.login",
-    parentId: "root",
-    path: "auth/teacher/login",
+    parentId: "routes/auth",
+    path: "teacher/login",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: false,
@@ -679,18 +679,6 @@ const routes = {
     hasWorkerAction: false,
     module: route20
   },
-  "routes/_app.teacher.new": {
-    id: "routes/_app.teacher.new",
-    parentId: "routes/_app",
-    path: "teacher/new",
-    index: void 0,
-    caseSensitive: void 0,
-    hasLoader: false,
-    hasAction: true,
-    hasWorkerLoader: false,
-    hasWorkerAction: false,
-    module: route21
-  },
   "routes/admin.event.new": {
     id: "routes/admin.event.new",
     parentId: "root",
@@ -701,7 +689,7 @@ const routes = {
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route22
+    module: route21
   },
   "routes/admin._index": {
     id: "routes/admin._index",
@@ -713,31 +701,31 @@ const routes = {
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route23
+    module: route22
   },
   "routes/auth.logout": {
     id: "routes/auth.logout",
-    parentId: "root",
-    path: "auth/logout",
+    parentId: "routes/auth",
+    path: "logout",
     index: void 0,
     caseSensitive: void 0,
     hasLoader: true,
     hasAction: true,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route24
+    module: route23
   },
   "routes/auth._index": {
     id: "routes/auth._index",
-    parentId: "root",
-    path: "auth",
+    parentId: "routes/auth",
+    path: void 0,
     index: true,
     caseSensitive: void 0,
     hasLoader: false,
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
-    module: route25
+    module: route24
   },
   "routes/_index": {
     id: "routes/_index",
@@ -746,6 +734,18 @@ const routes = {
     index: true,
     caseSensitive: void 0,
     hasLoader: false,
+    hasAction: false,
+    hasWorkerLoader: false,
+    hasWorkerAction: false,
+    module: route25
+  },
+  "routes/auth": {
+    id: "routes/auth",
+    parentId: "root",
+    path: "auth",
+    index: void 0,
+    caseSensitive: void 0,
+    hasLoader: true,
     hasAction: false,
     hasWorkerLoader: false,
     hasWorkerAction: false,
