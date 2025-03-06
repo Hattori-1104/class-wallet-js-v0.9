@@ -25,7 +25,7 @@ export default function ProductSelect({ products }: { products: Pick<Product, "i
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command className="w-full">
-          <CommandInput placeholder="商品を選択" className="h-9" />
+          <CommandInput placeholder="商品を選択" className="h-9" autoFocus={false} />
           <CommandList>
             <CommandEmpty>商品が見つかりません</CommandEmpty>
             <CommandGroup>

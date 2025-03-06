@@ -1,23 +1,27 @@
 import { create } from "zustand"
+import { generateId } from "~/lib/utils"
 
-type AddedProductType = {
-  id: string
+type ProductInfoType = {
   name: string
-  amount: number
   price: number
   description?: string
-  share: boolean
+}
+
+type PurchaseItemType = {
+  info: ProductInfoType
+  amount: number
 }
 
 type Store = {
-  addedProducts: AddedProductType[]
+  items: Map<string, PurchaseItemType>
+  doesShare: Set<string>
 }
 
 type Action = {
-  getProduct: (id: string) => AddedProductType | undefined
-  getAllProducts: () => AddedProductType[]
-  addProduct: (product: AddedProductType) => void
-  removeProduct: (id: string) => void
+  add: (info: ProductInfoType, doesShare: boolean) => void
+  get: (id: string) => (PurchaseItemType & { doesShare: boolean }) | undefined
+  find: (id: string) => boolean
+  remove: (id: string) => boolean
   setAmount: (id: string, amount: number) => void
   increaseAmount: (id: string) => void
   decreaseAmount: (id: string) => void
@@ -25,21 +29,38 @@ type Action = {
 }
 
 export const useAddedProductsStore = create<Store & Action>((set, get) => ({
-  addedProducts: [],
-  getProduct: (id) => get().addedProducts.find((product) => product.id === id),
-  getAllProducts: () => get().addedProducts,
-  addProduct: (product) => set((state) => ({ addedProducts: [...state.addedProducts, product] })),
-  removeProduct: (id) => set((state) => ({ addedProducts: state.addedProducts.filter((product) => product.id !== id) })),
-  setAmount: (id, amount) => {
-    const product = get().getProduct(id)
-    if (!product) return
-    if (amount === 0) {
-      get().removeProduct(id)
-      return
-    }
-    set((state) => ({ addedProducts: state.addedProducts.map((product) => (product.id === id ? { ...product, amount } : product)) }))
+  items: new Map(),
+  doesShare: new Set(),
+  add: (info, doesShare) => {
+    const id = generateId()
+    get().items.set(id, { info, amount: 1 })
+    if (doesShare) get().doesShare.add(id)
   },
-  increaseAmount: (id) => get().setAmount(id, (get().getProduct(id)?.amount ?? 0) + 1),
-  decreaseAmount: (id) => get().setAmount(id, (get().getProduct(id)?.amount ?? 0) - 1),
-  clear: () => set({ addedProducts: [] }),
+  get: (id) => {
+    const item = get().items.get(id)
+    if (!item) return undefined
+    return { ...item, doesShare: get().doesShare.has(id) }
+  },
+  find: (id) => get().items.has(id),
+  remove: (id) => get().items.delete(id),
+  setAmount: (id, amount) => {
+    const item = get().items.get(id)
+    if (!item) return
+    get().items.set(id, { ...item, amount })
+  },
+  increaseAmount: (id) => {
+    const item = get().items.get(id)
+    if (!item) return
+    get().items.set(id, { ...item, amount: item.amount + 1 })
+  },
+  decreaseAmount: (id) => {
+    const item = get().items.get(id)
+    if (!item) return
+    if (item.amount === 1) return get().remove(id)
+    get().items.set(id, { ...item, amount: item.amount - 1 })
+  },
+  clear: () => {
+    get().items.clear()
+    get().doesShare.clear()
+  },
 }))

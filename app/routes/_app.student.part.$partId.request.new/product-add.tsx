@@ -11,11 +11,15 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Switch } from "~/components/ui/switch"
 import { useIsMobile } from "~/hooks/useIsMobile"
+import { generateId } from "~/lib/utils"
 import { useAddedProductsStore } from "./stores/added-products"
 
 const productAddSchema = z.object({
-  name: z.string().max(50),
-  price: z.coerce.number().min(1).max(1000000),
+  name: z.string({ required_error: "商品名を入力してください" }).max(50),
+  price: z.coerce
+    .number({ required_error: "価格を入力してください", invalid_type_error: "価格を入力してください" })
+    .min(1, { message: "1円以上入力してください" })
+    .max(1000000, { message: "100万円以下で入力してください" }),
   description: z.string().optional(),
 })
 
@@ -35,7 +39,7 @@ function ProductAddForm({ setFormOpen }: { setFormOpen: (open: boolean) => void 
       const { success, data } = productAddSchema.safeParse(Object.fromEntries(formData.entries()))
       if (success) {
         addProduct({
-          id: crypto.randomUUID(),
+          id: generateId(),
           name: data.name,
           price: data.price,
           amount: 1,
@@ -54,22 +58,30 @@ function ProductAddForm({ setFormOpen }: { setFormOpen: (open: boolean) => void 
         <Label htmlFor={fields.name.id} className="text-right">
           商品名
         </Label>
-        <Input {...getInputProps(fields.name, { type: "text" })} />
+        <div>
+          <Input {...getInputProps(fields.name, { type: "text" })} />
+          <div className="text-red-500 text-sm">{fields.name.errors?.join(", ")}</div>
+        </div>
         <Label htmlFor={fields.price.id} className="text-right">
           価格
         </Label>
-        <Input {...getInputProps(fields.price, { type: "number" })} />
+        <div>
+          <Input {...getInputProps(fields.price, { type: "number" })} />
+          <div className="text-red-500 text-sm">{fields.price.errors?.join(", ")}</div>
+        </div>
         <Label htmlFor={fields.description.id} className="text-right">
           備考
         </Label>
-        <Input {...getInputProps(fields.description, { type: "text" })} />
+        <div>
+          <Input {...getInputProps(fields.description, { type: "text" })} placeholder="省略可能" />
+          <div className="text-red-500 text-sm">{fields.description.errors?.join(", ")}</div>
+        </div>
       </div>
       <div className="flex items-center justify-end gap-2">
         <Label htmlFor="share" className="text-right">
           この商品を登録する
         </Label>
         <Switch id="share" checked={share} onCheckedChange={setShare} />
-        {/* <Button type="submit">追加</Button> */}
       </div>
     </form>
   )
