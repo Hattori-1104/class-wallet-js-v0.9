@@ -1,11 +1,9 @@
 import { Link } from "@remix-run/react"
+import { Container } from "~/components/container"
 import { Button } from "~/components/ui/button"
-
 export default function Index() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="mb-6 text-3xl font-bold">ClassWallet.js</h1>
-
+    <Container title="ClassWallet.js">
       <div className="space-y-4">
         <div className="rounded border border-gray-200 p-4">
           <h2 className="mb-4 text-xl font-semibold">ようこそ</h2>
@@ -15,6 +13,6 @@ export default function Index() {
           </Link>
         </div>
       </div>
-    </div>
+    </Container>
   )
 }

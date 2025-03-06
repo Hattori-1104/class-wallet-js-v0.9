@@ -19,7 +19,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   const wallet = await prisma.wallet.findUnique({
     where: { id: walletId as string },
-    include: { parts: true },
+    select: { parts: true },
   })
 
   if (!wallet) {

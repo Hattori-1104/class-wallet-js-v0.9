@@ -3,7 +3,7 @@ import { Link } from "@remix-run/react"
 import { Card, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 
 type PartLinkCardProps = {
-  part: Part & { wallet: Wallet }
+  part: Pick<Part, "id" | "name"> & { wallet: Pick<Wallet, "name"> }
 }
 
 export function PartLinkCard({ part }: PartLinkCardProps) {

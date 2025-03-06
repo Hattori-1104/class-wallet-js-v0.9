@@ -1,6 +1,7 @@
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react"
 import { useEffect } from "react"
+import { Container } from "~/components/container"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { AppContextType } from "~/routes/_app"
 import { prisma } from "~/service.server/repository"
@@ -15,18 +16,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const wallet = await prisma.wallet.findUnique({
     where: { id: walletId },
-    include: {
+    select: {
       parts: {
-        include: {
+        select: {
           users: {
-            include: {
+            select: {
               user: true,
             },
           },
         },
       },
       teachers: {
-        include: {
+        select: {
           teacher: true,
         },
       },
@@ -46,8 +47,8 @@ export default function WalletDetail() {
   }, [setBackRoute])
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-8">
+    <Container>
+      <div className="my-4">
         <h1 className="text-2xl font-bold">{wallet.name}</h1>
       </div>
 
@@ -99,6 +100,6 @@ export default function WalletDetail() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </Container>
   )
 }

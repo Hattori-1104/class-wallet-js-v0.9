@@ -1,10 +1,11 @@
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react"
 import { useEffect } from "react"
+import { Container, ContainerGrid, ContainerSection, ContainerTitle } from "~/components/container"
 
 import { PartMemberCard } from "~/components/part-member-card"
 import { PartTeachersCard } from "~/components/part-teachers-card"
-import { RequestCard } from "~/components/request-card"
+import { RequestSection } from "~/components/request-card"
 import { Button } from "~/components/ui/button"
 
 import { AppContextType } from "~/routes/_app"
@@ -27,21 +28,54 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     select: {
       roleId: true,
       part: {
-        include: {
+        select: {
+          id: true,
+          name: true,
           wallet: {
-            include: {
+            select: {
+              id: true,
+              name: true,
               teachers: {
-                include: {
+                select: {
                   teacher: true,
                 },
               },
             },
           },
           purchases: {
-            include: {
-              requestedBy: true,
-              approvedByAccountant: true,
-              approvedByTeacher: true,
+            select: {
+              id: true,
+              requestedBy: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+              note: true,
+              approvedByAccountant: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+              approvedByTeacher: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+              items: {
+                select: {
+                  id: true,
+                  product: {
+                    select: {
+                      name: true,
+                      price: true,
+                    },
+                  },
+                  amount: true,
+                },
+              },
             },
           },
         },
@@ -70,24 +104,24 @@ export default function PartDetail() {
     setBackRoute("/student")
   }, [setBackRoute])
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-8 flex items-center justify-between">
+    <Container>
+      <ContainerTitle className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{part.name}</h1>
-          <p className="text-gray-600">所属: {part.wallet.name}</p>
+          <h1 className="text-2xl">{part.name}</h1>
+          <p className="text-sm font-normal text-muted-foreground">所属 - {part.wallet.name}</p>
         </div>
         <Link to={`/student/part/${part.id}/request/new`}>
           <Button>購入リクエスト</Button>
         </Link>
-      </div>
+      </ContainerTitle>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <ContainerGrid>
         <PartMemberCard userParts={userParts} />
         <PartTeachersCard part={part} />
-        <div className="col-span-1 sm:col-span-2">
-          <RequestCard part={part} />
-        </div>
-      </div>
-    </div>
+      </ContainerGrid>
+      <RequestSection part={part} />
+    </Container>
   )
 }
+
+// いずれ全部コンポーネント化しよう

@@ -1,4 +1,5 @@
 import { Link, json, useLoaderData } from "@remix-run/react"
+import { Container } from "~/components/container"
 import { Button } from "~/components/ui/button"
 import { prisma } from "~/service.server/repository"
 
@@ -11,8 +12,8 @@ export default function AdminDashboard() {
   const { events } = useLoaderData<typeof loader>()
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-8">管理者ダッシュボード</h1>
+    <Container>
+      <h1 className="text-2xl font-bold my-4">管理者ダッシュボード</h1>
       <div className="space-y-4">
         {events.map((event) => (
           <Link key={event.id} to={`/admin/event/${event.id}`}>
@@ -23,6 +24,6 @@ export default function AdminDashboard() {
           <Button>イベント作成</Button>
         </Link>
       </div>
-    </div>
+    </Container>
   )
 }

@@ -3,7 +3,10 @@ import { Link } from "@remix-run/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 
 type WalletLinkCardProps = {
-  wallet: Wallet & { teachers: { teacher: Teacher }[]; parts: Part[] }
+  wallet: Pick<Wallet, "id" | "name"> & {
+    teachers: { teacher: Pick<Teacher, "name"> }[]
+    parts: Pick<Part, "name">[]
+  }
 }
 
 export function WalletLinkCard({ wallet }: WalletLinkCardProps) {

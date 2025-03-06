@@ -1,5 +1,6 @@
 import { type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Link, useLoaderData } from "@remix-run/react"
+import { Container } from "~/components/container"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { prisma } from "~/service.server/repository"
@@ -14,21 +15,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: {
       id: sessionData.userId,
     },
-    include: {
+    select: {
       wallets: {
-        include: {
+        select: {
           wallet: {
             select: {
               id: true,
               name: true,
               parts: {
-                include: {
+                select: {
                   wallet: true,
                   purchases: {
                     where: {
                       OR: [{ accountantApprovalId: null }, { teacherApprovalId: null, accountantApprovalId: { not: null } }],
                     },
-                    include: {
+                    select: {
                       requestedBy: true,
                       approvedByAccountant: true,
                     },
@@ -61,8 +62,8 @@ export default function TeacherIndex() {
   const { teacher } = useLoaderData<typeof loader>()
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-8">
+    <Container>
+      <div className="my-4">
         <h1 className="text-2xl font-bold">教師ダッシュボード</h1>
       </div>
 
@@ -144,6 +145,6 @@ export default function TeacherIndex() {
           </div>
         </section>
       </div>
-    </div>
+    </Container>
   )
 }

@@ -3,7 +3,9 @@ import { Teacher } from "@prisma/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 
 type PartTeachersCardProps = {
-  part: Part & { wallet: Wallet & { teachers: { teacher: Teacher }[] } }
+  part: Pick<Part, "id" | "name"> & {
+    wallet: Pick<Wallet, "name"> & { teachers: { teacher: Teacher }[] }
+  }
 }
 
 export function PartTeachersCard({ part }: PartTeachersCardProps) {

@@ -52,18 +52,6 @@ CREATE TABLE `UserPart` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `UserWallet` (
-    `id` VARCHAR(191) NOT NULL,
-    `userId` VARCHAR(191) NOT NULL,
-    `walletId` VARCHAR(191) NOT NULL,
-
-    INDEX `UserWallet_userId_idx`(`userId`),
-    INDEX `UserWallet_walletId_idx`(`walletId`),
-    UNIQUE INDEX `UserWallet_userId_walletId_key`(`userId`, `walletId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Teacher` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -88,11 +76,8 @@ CREATE TABLE `TeacherWallet` (
 -- CreateTable
 CREATE TABLE `Purchase` (
     `id` VARCHAR(191) NOT NULL,
-    `itemName` VARCHAR(191) NOT NULL,
-    `amount` INTEGER NOT NULL,
-    `description` VARCHAR(191) NOT NULL,
+    `note` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
     `partId` VARCHAR(191) NOT NULL,
     `requestedById` VARCHAR(191) NOT NULL,
     `accountantApprovalId` VARCHAR(191) NULL,
@@ -109,9 +94,7 @@ CREATE TABLE `Purchase` (
 CREATE TABLE `PurchaseItem` (
     `id` VARCHAR(191) NOT NULL,
     `purchaseId` VARCHAR(191) NOT NULL,
-    `itemName` VARCHAR(191) NOT NULL,
     `amount` INTEGER NOT NULL,
-    `description` VARCHAR(191) NOT NULL,
     `productId` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -123,6 +106,7 @@ CREATE TABLE `Product` (
     `name` VARCHAR(191) NOT NULL,
     `price` INTEGER NOT NULL,
     `description` VARCHAR(191) NULL,
+    `shared` BOOLEAN NOT NULL DEFAULT true,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -138,12 +122,6 @@ ALTER TABLE `UserPart` ADD CONSTRAINT `UserPart_userId_fkey` FOREIGN KEY (`userI
 
 -- AddForeignKey
 ALTER TABLE `UserPart` ADD CONSTRAINT `UserPart_partId_fkey` FOREIGN KEY (`partId`) REFERENCES `Part`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `UserWallet` ADD CONSTRAINT `UserWallet_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `UserWallet` ADD CONSTRAINT `UserWallet_walletId_fkey` FOREIGN KEY (`walletId`) REFERENCES `Wallet`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `TeacherWallet` ADD CONSTRAINT `TeacherWallet_teacherId_fkey` FOREIGN KEY (`teacherId`) REFERENCES `Teacher`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

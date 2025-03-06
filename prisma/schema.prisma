@@ -93,11 +93,8 @@ model TeacherWallet {
 
 model Purchase {
   id          String   @id @default(cuid())
-  itemName    String
-  amount      Int
-  description String
+  note String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   part   Part   @relation(fields: [partId], references: [id])
   partId String
@@ -123,9 +120,7 @@ model PurchaseItem {
   id          String   @id @default(uuid())
   purchaseId  String
   purchase    Purchase @relation(fields: [purchaseId], references: [id])
-  itemName    String
   amount      Int
-  description String
   productId   String
 
   product Product @relation(fields: [productId], references: [id])
@@ -136,6 +131,7 @@ model Product {
   name        String
   price       Int
   description String?
+  shared      Boolean @default(true)
 
   purchaseItems PurchaseItem[]
 }

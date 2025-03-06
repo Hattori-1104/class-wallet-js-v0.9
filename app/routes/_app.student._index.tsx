@@ -1,5 +1,6 @@
 import { type LoaderFunctionArgs, redirect } from "@remix-run/node"
 import { useLoaderData } from "@remix-run/react"
+import { Container, ContainerGrid, ContainerSection, ContainerTitle } from "~/components/container"
 
 import { PartLinkCard } from "~/components/part-link-card"
 import { WalletLinkCard } from "~/components/wallet-link-card"
@@ -13,19 +14,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
+    select: {
       userParts: {
-        include: {
+        select: {
           part: {
             include: {
               wallet: {
-                include: {
+                select: {
+                  id: true,
                   teachers: {
-                    include: {
+                    select: {
                       teacher: true,
                     },
                   },
                   parts: true,
+                  name: true,
                 },
               },
             },
@@ -45,26 +48,23 @@ export default function StudentIndex() {
   const wallets = Array.from(new Map(user.userParts.map(({ part }) => [part.walletId, part.wallet])).values())
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="mb-8 text-2xl font-bold">生徒ダッシュボード</h1>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <section>
-          <h2 className="text-xl font-semibold mb-2">担当パート</h2>
+    <Container title="生徒ダッシュボード">
+      <ContainerGrid>
+        <ContainerSection title="担当パート">
           <div className="space-y-4">
             {user.userParts.map(({ part }) => (
               <PartLinkCard part={part} key={part.id} />
             ))}
           </div>
-        </section>
-        <section>
-          <h2 className="text-xl font-semibold mb-2">所属ウォレット</h2>
+        </ContainerSection>
+        <ContainerSection title="所属ウォレット">
           <div className="space-y-4">
             {wallets.map((wallet) => (
               <WalletLinkCard wallet={wallet} key={wallet.id} />
             ))}
           </div>
-        </section>
-      </div>
-    </div>
+        </ContainerSection>
+      </ContainerGrid>
+    </Container>
   )
 }

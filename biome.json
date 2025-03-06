@@ -8,7 +8,7 @@
   "files": {
     "ignoreUnknown": false,
     "ignore": ["node_modules/**"],
-    "include": ["**/*.ts", "**/*.tsx", "**/*.json"]
+    "include": ["app/**/*.ts", "app/**/*.tsx", "app/**/*.json"]
   },
   "formatter": {
     "enabled": true,
@@ -36,7 +36,11 @@
       },
       "correctness": {
         "noUnusedImports": "off",
-        "noUnusedVariables": "off"
+        "noUnusedVariables": "off",
+        "useImportExtensions": "off"
+      },
+      "a11y": {
+        "useSemanticElements": "off"
       }
     }
   },

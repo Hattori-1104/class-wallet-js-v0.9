@@ -2,6 +2,7 @@ import { type LoaderFunctionArgs, json } from "@remix-run/node"
 import { type ActionFunctionArgs } from "@remix-run/node"
 import { Form, Link, useLoaderData } from "@remix-run/react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Container } from "~/components/container"
 import { Button } from "~/components/ui/button"
 import { prisma } from "~/service.server/repository"
 
@@ -26,8 +27,8 @@ export default function AdminEventWalletPartIndex() {
   const { parts } = useLoaderData<typeof loader>()
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-8">パート管理</h1>
+    <Container>
+      <h1 className="text-2xl font-bold my-4">パート管理</h1>
       <Link to="/admin/event/$eventId/wallet/$walletId/part/new">
         <Button className="mb-4 flex items-center">
           <Plus className="mr-2" /> 新しいパートを追加
@@ -54,6 +55,6 @@ export default function AdminEventWalletPartIndex() {
           </div>
         ))}
       </div>
-    </div>
+    </Container>
   )
 }

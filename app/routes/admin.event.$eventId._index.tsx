@@ -1,7 +1,8 @@
 import { type LoaderFunctionArgs, json } from "@remix-run/node"
-import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react"
+import { Link, useFetcher, useLoaderData } from "@remix-run/react"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
+import { Container } from "~/components/container"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,11 +13,12 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog"
 import { Button } from "~/components/ui/button"
+import { formatMoney } from "~/lib/utils"
 import { prisma } from "~/service.server/repository"
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { eventId } = params
-  const wallets = await prisma.wallet.findMany({ where: { eventId }, include: { parts: true } })
+  const wallets = await prisma.wallet.findMany({ where: { eventId }, select: { parts: true, id: true, name: true, budgetLimit: true } })
   return json({ wallets, eventId })
 }
 
@@ -47,8 +49,8 @@ export default function AdminEventIndex() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-8">ウォレットとパート管理</h1>
+    <Container>
+      <h1 className="text-2xl font-bold my-4">ウォレットとパート管理</h1>
       <Link to={`/admin/event/${eventId}/wallet/new`}>
         <Button className="mb-4 flex items-center">
           <Plus className="mr-2" /> 新しいウォレットを追加
@@ -59,7 +61,7 @@ export default function AdminEventIndex() {
           <div key={wallet.id} className="border rounded p-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">
-                {wallet.name} - <span className="font-bold text-green-600">{wallet.budgetLimit}円</span>
+                {wallet.name} - <span className="font-bold text-green-600">{formatMoney(wallet.budgetLimit)}</span>
               </h2>
               <div className="flex space-x-2">
                 <Link to={`/admin/event/${eventId}/wallet/${wallet.id}/edit`}>
@@ -96,7 +98,7 @@ export default function AdminEventIndex() {
                 {wallet.parts.map((part) => (
                   <li key={part.id} className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
                     <span className="font-medium">
-                      {part.name} - <span className="font-bold text-green-600">{part.budgetLimit}円</span>
+                      {part.name} - <span className="font-bold text-green-600">{formatMoney(part.budgetLimit)}</span>
                     </span>
                     <div className="flex space-x-2">
                       <Link to={`/admin/event/${eventId}/wallet/${wallet.id}/part/${part.id}/edit`}>
@@ -141,6 +143,6 @@ export default function AdminEventIndex() {
           </div>
         ))}
       </div>
-    </div>
+    </Container>
   )
 }

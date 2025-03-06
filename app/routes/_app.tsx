@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     })
     if (user === null) {
-      return redirect("/auth/teacher", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
+      return redirect("/auth/teacher/login", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
     }
     return { user, userType: sessionData.userType }
   }
@@ -47,7 +47,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     })
     if (user === null) {
-      return redirect("/auth/student", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
+      return redirect("/auth/student/login", { headers: { "Set-Cookie": await commitToastByCase(session, "UnAuthorized") } })
     }
     return { user, userType: sessionData.userType }
   }
@@ -63,7 +63,7 @@ export default function AppLayout() {
   const isRootPath = location.pathname === "/student" || location.pathname === "/teacher"
 
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       {/* ナビゲーションバー */}
       <nav className="h-16 border-b">
         <div className="container mx-auto flex h-full items-center justify-between px-4">
@@ -94,7 +94,7 @@ export default function AppLayout() {
       </nav>
 
       {/* メインコンテンツ */}
-      <main className="min-h-[calc(100vh-4rem)] bg-gray-50">
+      <main className="flex-1 bg-gray-50">
         <Outlet context={{ setBackRoute }} />
       </main>
     </div>

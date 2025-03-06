@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, json, redirect } from "@remix-run/node"
 import { Form, useLoaderData } from "@remix-run/react"
+import { Container } from "~/components/container"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { prisma } from "~/service.server/repository"
@@ -16,13 +17,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const purchase = await prisma.purchase.findUnique({
     where: { id: requestId },
-    include: {
+    select: {
       part: {
-        include: {
+        select: {
           wallet: {
-            include: {
+            select: {
               teachers: {
-                include: {
+                select: {
                   teacher: true,
                 },
               },
@@ -97,8 +98,8 @@ export default function RequestDetail() {
   const { purchase } = useLoaderData<typeof loader>()
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mb-8">
+    <Container>
+      <div className="my-4">
         <h1 className="text-2xl font-bold">購入リクエスト詳細</h1>
       </div>
 
@@ -173,6 +174,6 @@ export default function RequestDetail() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </Container>
   )
 }
