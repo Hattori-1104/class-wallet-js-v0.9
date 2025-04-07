@@ -18,6 +18,8 @@
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[prisma]": { "editor.defaultFormatter": "Prisma.prisma"},
 
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }

@@ -2,40 +2,45 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model Event {
-  id      String   @id @default(uuid())
-  name    String
-  wallets Wallet[]
-
-  budgetLimit Int
-}
-
-model User {
-  id    String @id @default(uuid())
+model Student {
+  id    String @id
   email String @unique
   name  String
 
-  // 所属関係
-  userParts   UserPart[]
+  parts       Part[]   @relation("PartStudents")
+  leaderParts Part[]   @relation("PartLeaders")
+  wallets     Wallet[]
 
-  // 購入関係
-  requestedPurchases          Purchase[] @relation("RequestedPurchases")
-  accountantApprovedPurchases Purchase[] @relation("AccountantApprovedPurchases")
+  certifications StudentCertification[]
+}
+
+model Teacher {
+  id    String @id
+  name  String
+  email String @unique
+
+  wallets        Wallet[]
+  certifications TeacherCertification[]
 }
 
 model Part {
-  id          String @id @default(uuid())
-  name        String
-  budgetLimit Int
+  id     String @id @default(uuid())
+  name   String
+  budget Int
 
-  users    UserPart[]
+  students Student[] @relation("PartStudents")
+  leaders  Student[] @relation("PartLeaders")
   walletId String
-  wallet   Wallet     @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet   Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   purchases Purchase[]
 
@@ -43,87 +48,75 @@ model Part {
 }
 
 model Wallet {
-  id             String       @id @default(uuid())
-  name           String
-  budgetLimit    Int
-  eventId        String
-  event          Event        @relation(fields: [eventId], references: [id])
+  id      String @id @default(uuid())
+  name    String
+  budget  Int
+  eventId String
 
-  parts    Part[]
-  teachers TeacherWallet[]
+  parts              Part[]
+  teachers           Teacher[]
+  accountantStudents Student[]
 }
 
+model StudentCertification {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  approved   Boolean  @default(false)
+  signedById String
+  signedBy   Student  @relation(fields: [signedById], references: [id])
 
-model UserPart {
-  id     String @id @default(uuid())
-  userId String
-  partId String
-  roleId Int
+  purchaseRequest  Purchase[] @relation("RequestCert")
+  purchaseApproval Purchase[] @relation("AccountantCert")
 
-  user User @relation(fields: [userId], references: [id])
-  part Part @relation(fields: [partId], references: [id])
-
-  @@unique([userId, partId])
-  @@index([userId])
-  @@index([partId])
+  @@index([signedById])
 }
 
-model Teacher {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
+model TeacherCertification {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  approved   Boolean  @default(false)
+  signedById String
+  signedBy   Teacher  @relation(fields: [signedById], references: [id])
 
-  wallets TeacherWallet[]
+  purchaseApproval Purchase[] @relation("TeacherCert")
 
-  approvedPurchases Purchase[]
-}
-
-model TeacherWallet {
-  id        String @id @default(uuid())
-  teacherId String
-  walletId  String
-
-  teacher Teacher @relation(fields: [teacherId], references: [id])
-  wallet  Wallet  @relation(fields: [walletId], references: [id])
-
-  @@unique([teacherId, walletId])
-  @@index([teacherId])
-  @@index([walletId])
+  @@index([signedById])
 }
 
 model Purchase {
-  id          String   @id @default(cuid())
-  note String
-  createdAt   DateTime @default(now())
+  id            String    @id @default(cuid())
+  receiptNumber Int?
+  note          String
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+  returnedAt    DateTime?
+  actualUsage   Int?
+  checkedAt     DateTime?
+  updatedAt     DateTime? @updatedAt
 
-  part   Part   @relation(fields: [partId], references: [id])
   partId String
-
-  requestedBy   User   @relation("RequestedPurchases", fields: [requestedById], references: [id])
-  requestedById String
-
-  approvedByAccountant User?   @relation("AccountantApprovedPurchases", fields: [accountantApprovalId], references: [id])
-  accountantApprovalId String?
-
-  approvedByTeacher Teacher? @relation(fields: [teacherApprovalId], references: [id])
-  teacherApprovalId String?
+  part   Part   @relation(fields: [partId], references: [id])
 
   items PurchaseItem[]
 
+  requestCertId    String
+  requestCert      StudentCertification  @relation(name: "RequestCert", fields: [requestCertId], references: [id])
+  accountantCertId String?
+  accountantCert   StudentCertification? @relation(name: "AccountantCert", fields: [accountantCertId], references: [id])
+  teacherCertId    String?
+  teacherCert      TeacherCertification? @relation(name: "TeacherCert", fields: [teacherCertId], references: [id])
+
   @@index([partId])
-  @@index([requestedById])
-  @@index([accountantApprovalId])
-  @@index([teacherApprovalId])
 }
 
 model PurchaseItem {
-  id          String   @id @default(uuid())
-  purchaseId  String
-  purchase    Purchase @relation(fields: [purchaseId], references: [id])
-  amount      Int
-  productId   String
+  id         String @id @default(uuid())
+  purchaseId String
+  quantity   Int
+  productId  String
 
-  product Product @relation(fields: [productId], references: [id])
+  purchase Purchase @relation(fields: [purchaseId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
 }
 
 model Product {
@@ -131,7 +124,7 @@ model Product {
   name        String
   price       Int
   description String?
-  shared      Boolean @default(true)
+  doesShare   Boolean @default(false)
 
   purchaseItems PurchaseItem[]
 }

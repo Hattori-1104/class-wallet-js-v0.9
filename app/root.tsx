@@ -1,8 +1,11 @@
-import type { LinksFunction } from "@remix-run/node"
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react"
-import type { ReactNode } from "react"
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node"
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useParams, useSearchParams } from "@remix-run/react"
+import { type ReactNode, useEffect } from "react"
+import { Toaster } from "~/components/ui/sonner"
 
 import "./tailwind.css"
+import { toast } from "sonner"
+import { getSession } from "./services/session.server"
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -18,6 +21,16 @@ export const links: LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: ReactNode }) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    if (searchParams.has("error")) {
+      toast.error("エラーが発生しました")
+      setSearchParams((prev) => {
+        prev.delete("error")
+        return prev
+      })
+    }
+  }, [searchParams, setSearchParams])
   return (
     <html lang="ja">
       <head>
@@ -27,7 +40,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <div className="absolute inset-0 flex flex-col bg-gray-50">{children}</div>
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>

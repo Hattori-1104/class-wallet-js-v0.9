@@ -1,0 +1,138 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Student {
+  id String [pk]
+  email String [unique, not null]
+  name String [not null]
+  parts Part [not null]
+  leaderParts Part [not null]
+  wallets Wallet [not null]
+  certifications StudentCertification [not null]
+}
+
+Table Teacher {
+  id String [pk]
+  name String [not null]
+  email String [unique, not null]
+  wallets Wallet [not null]
+  certifications TeacherCertification [not null]
+}
+
+Table Part {
+  id String [pk]
+  name String [not null]
+  budget Int [not null]
+  students Student [not null]
+  leaders Student [not null]
+  walletId String [not null]
+  wallet Wallet [not null]
+  purchases Purchase [not null]
+}
+
+Table Wallet {
+  id String [pk]
+  name String [not null]
+  budget Int [not null]
+  eventId String [not null]
+  parts Part [not null]
+  teachers Teacher [not null]
+  accountantStudents Student [not null]
+}
+
+Table StudentCertification {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  approved Boolean [not null, default: false]
+  signedById String [not null]
+  signedBy Student [not null]
+  purchaseRequest Purchase [not null]
+  purchaseApproval Purchase [not null]
+}
+
+Table TeacherCertification {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  approved Boolean [not null, default: false]
+  signedById String [not null]
+  signedBy Teacher [not null]
+  purchaseApproval Purchase [not null]
+}
+
+Table Purchase {
+  id String [pk]
+  receiptNumber Int
+  note String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  completedAt DateTime
+  returnedAt DateTime
+  actualUsage Int
+  checkedAt DateTime
+  updatedAt DateTime
+  partId String [not null]
+  part Part [not null]
+  items PurchaseItem [not null]
+  requestCertId String [not null]
+  requestCert StudentCertification [not null]
+  accountantCertId String
+  accountantCert StudentCertification
+  teacherCertId String
+  teacherCert TeacherCertification
+}
+
+Table PurchaseItem {
+  id String [pk]
+  purchaseId String [not null]
+  quantity Int [not null]
+  productId String [not null]
+  purchase Purchase [not null]
+  product Product [not null]
+}
+
+Table Product {
+  id String [pk]
+  name String [not null]
+  price Int [not null]
+  description String
+  doesShare Boolean [not null, default: false]
+  purchaseItems PurchaseItem [not null]
+}
+
+Table PartStudents {
+  partsId String [ref: > Part.id]
+  studentsId String [ref: > Student.id]
+}
+
+Table PartLeaders {
+  leaderpartsId String [ref: > Part.id]
+  leadersId String [ref: > Student.id]
+}
+
+Table StudentToWallet {
+  walletsId String [ref: > Wallet.id]
+  accountantstudentsId String [ref: > Student.id]
+}
+
+Table TeacherToWallet {
+  walletsId String [ref: > Wallet.id]
+  teachersId String [ref: > Teacher.id]
+}
+
+Ref: Part.walletId > Wallet.id [delete: Cascade]
+
+Ref: StudentCertification.signedById > Student.id
+
+Ref: TeacherCertification.signedById > Teacher.id
+
+Ref: Purchase.partId > Part.id
+
+Ref: Purchase.requestCertId > StudentCertification.id
+
+Ref: Purchase.accountantCertId > StudentCertification.id
+
+Ref: Purchase.teacherCertId > TeacherCertification.id
+
+Ref: PurchaseItem.purchaseId > Purchase.id
+
+Ref: PurchaseItem.productId > Product.id

@@ -1,0 +1,5 @@
+以下のルールにしたがってコーディングしてください。
+- RemixのLoader、Action関数から返されるデータにjson関数を使用せずにオブジェクトとして返してください。
+- レイアウトを整える場合は、app/components/container.tsxを使用してください。
+- レイアウトはapp/routes/_app.student.part.$partId._index/route.tsxやapp/routes/_app.student._index.tsx等を参考にしてください。
+- RemixのLoader、Action関数でクッキーセッションからデータを取得する際は、app/service.server/session.tsxに用意された関数を使用してください。
